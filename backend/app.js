@@ -1,70 +1,37 @@
 const express = require("express");
-const sqlite3 = require("sqlite3").verbose();
 const bodyParser = require("body-parser");
-const path = require("path");
 const cors = require("cors");
 
 const app = express();
-app.use(cors());
-app.use(bodyParser.json());
 
-// Connect to a SQLite database.
-let dbPath = path.resolve(__dirname, "temperatures.db");
-let db = new sqlite3.Database(dbPath, (err) => {
-  if (err) {
-    return console.error(err.message);
-  }
-  console.log("Connected to the SQLite database.");
-});
+app.use(cors({ credentials: true, origin: process.env.FE_URL })); // Enable CORS for all routes
 
-// Create table.
-db.run(
-  "CREATE TABLE IF NOT EXISTS temperatures(value NUMBER, deviceId TEXT, time TEXT)",
-  (err) => {
-    if (err) {
-      return console.error(err.message);
-    }
-  }
+// use JSONs
+app.use(express.json());
+
+// for url encoded content type
+app.use(express.urlencoded({ extended: true }));
+
+// Session support for passport.js
+var session = require("express-session");
+var SQLiteStore = require("connect-sqlite3")(session);
+var passport = require("passport");
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    store: new SQLiteStore({ db: "sessions.db", dir: "./" }),
+  })
 );
+app.use(passport.authenticate("session"));
 
-// GET all temperatures.
-app.get("/temperatures", (req, res) => {
-  db.all("SELECT * FROM temperatures", [], (err, rows) => {
-    if (err) {
-      throw err;
-    }
-    res.json(rows);
-  });
-});
-
-// POST add a new temperature.
-app.post("/temperatures", (req, res) => {
-  const value = req.body.value;
-  const deviceId = req.body.deviceId;
-  const time = new Date().toLocaleString();
-  db.run(
-    `INSERT INTO temperatures(value, deviceId, time) VALUES(?, ?, ?)`,
-    [value, deviceId, time],
-    function (err) {
-      if (err) {
-        return console.log(err.message);
-      }
-      res.json({ id: this.lastID });
-    }
-  );
-});
-
-// DELETE delete all temperatures.
-app.delete("/temperatures", (req, res) => {
-  db.run("DELETE FROM temperatures", [], function (err) {
-    if (err) {
-      return console.log(err.message);
-    }
-    res.json({ deletedRows: this.changes });
-  });
-});
+app.use("/devices", require("./src/controllers/device.controller"));
+app.use("/temperatures", require("./src/controllers/temperature.controller"));
+app.use("/me", require("./src/controllers/me.controller"));
+app.use("/", require("./src/controllers/auth.controller"));
 
 // Start the server
-app.listen(3000, () => {
-  console.log("Server is running on port 3000");
+app.listen(process.env.PORT, () => {
+  console.log(`Server is running on port ${process.env.PORT}`);
 });
