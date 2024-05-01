@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const { checkAndUpdateAlerts } = require("./src/services/alerts.service");
 
 const app = express();
 
@@ -30,8 +31,12 @@ app.use("/devices", require("./src/controllers/device.controller"));
 app.use("/temperatures", require("./src/controllers/temperature.controller"));
 app.use("/me", require("./src/controllers/me.controller"));
 app.use("/", require("./src/controllers/auth.controller"));
+app.use("/alerts", require("./src/controllers/alerts.controller"));
 
 // Start the server
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);
+
+  // Schedule the alert check job to run every minute
+  setInterval(checkAndUpdateAlerts, 60000);
 });
