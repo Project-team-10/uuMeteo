@@ -12,10 +12,9 @@ const {
 
 const router = new Router();
 
-router.use(authMiddleware);
-
 router.get(
   "/:deviceId",
+  authMiddleware,
   validateRequest({
     params: z.object({
       deviceId: z.string(),
