@@ -17,12 +17,14 @@ module.exports.getTemperaturesForDevice = function (deviceId, time) {
   });
 };
 
-module.exports.addTemperature = function (value, time, deviceId) {
+module.exports.addTemperatures = function (values, deviceId) {
   const stmt = db.prepare(
     `INSERT INTO temperatures (value, time, deviceId) VALUES (?, ?, ?)`
   );
 
-  stmt.run(value, time, deviceId);
+  for (const value of values) {
+    stmt.run(value.temperature, value.time, deviceId);
+  }
 };
 
 module.exports.deleteTemperatures = function (deviceId) {
