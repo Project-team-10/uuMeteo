@@ -4,6 +4,8 @@ const { validateRequest } = require("zod-express-middleware");
 const { z } = require("zod");
 const {
   getTemperaturesForDevice,
+  getLastTemperatures: getLastTemperatureForDevice,
+  getLastTemperatures,
 } = require("../repositories/temperature.repository");
 const {
   addTemperatures: addTemperature,
@@ -11,6 +13,11 @@ const {
 } = require("../services/temperature.service");
 
 const router = new Router();
+
+router.get("/realtime", authMiddleware, async (req, res) => {
+  const temperatures = await getLastTemperatures();
+  return res.json(temperatures);
+});
 
 router.get(
   "/:deviceId",

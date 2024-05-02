@@ -17,6 +17,24 @@ module.exports.getTemperaturesForDevice = function (deviceId, time) {
   });
 };
 
+module.exports.getLastTemperatures = function () {
+  const stmt =
+    db.prepare(`SELECT t.deviceId as deviceId, MAX(t.value) AS value, t.time AS time
+  FROM temperatures t
+  GROUP BY t.deviceId
+  `);
+
+  return new Promise((resolve, reject) => {
+    stmt.all((err, row) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(row);
+      }
+    });
+  });
+};
+
 module.exports.addTemperatures = function (values, deviceId) {
   const stmt = db.prepare(
     `INSERT INTO temperatures (value, time, deviceId) VALUES (?, ?, ?)`
