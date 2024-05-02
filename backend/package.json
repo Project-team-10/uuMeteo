@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "node --env-file=.env --watch app.js",
     "debug": "node --env-file=.env --inspect --watch app.js",
