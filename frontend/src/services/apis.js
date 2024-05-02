@@ -52,3 +52,63 @@ export async function logout() {
     return null;
   }
 }
+
+export async function fetchAlerts() {
+  const res = await fetch(`${BE_URL}/alerts`, {
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    return null;
+  }
+
+  const alerts = await res.json();
+  return alerts;
+}
+
+export async function createAlert(deviceId, upperLimit, lowerLimit) {
+  const res = await fetch(`${BE_URL}/alerts`, {
+    credentials: "include",
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ deviceId, upperLimit, lowerLimit }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Error creating alert: ${res.status} - ${res.statusText}`);
+  }
+
+  return await res.json();
+}
+
+export async function clearAlert(deviceId) {
+  const res = await fetch(`${BE_URL}/alerts/clear`, {
+    credentials: "include",
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ deviceId }),
+  });
+
+  if (!res.ok) {
+    return null;
+  }
+}
+
+export async function deleteAlert(deviceId) {
+  const res = await fetch(`${BE_URL}/alerts`, {
+    credentials: "include",
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ deviceId }),
+  });
+
+  if (!res.ok) {
+    return null;
+  }
+}
