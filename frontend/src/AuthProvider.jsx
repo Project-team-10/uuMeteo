@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
         location.pathname
       )
     ) {
-      // navigate("/login");
+      navigate("/login");
     }
   }, [data, location.pathname]);
 
