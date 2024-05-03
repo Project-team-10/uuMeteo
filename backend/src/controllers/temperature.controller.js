@@ -56,7 +56,7 @@ router.post(
       values: z.array(
         z.object({
           temperature: z.number(),
-          time: z.string(),
+          time: z.coerce.date(),
         })
       ),
       secretKey: z.string(),
