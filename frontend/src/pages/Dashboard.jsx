@@ -4,6 +4,7 @@ import AlertsModal from "../components/AlertsModal";
 import Graph from "../components/Graph";
 import { MeContext } from "../contexts/MeContext";
 import { useInterval } from "../hooks/useInterval";
+import { useNavigate } from "react-router-dom";
 import {
   fetchAlerts,
   fetchDevices,
@@ -22,6 +23,7 @@ export default function Dashboard() {
   const [selectedDevice, setSelectedDevice] = useState(null);
   const [triggeredAlerts, setTriggeredAlerts] = useState([]);
   const [triggeredAlertsCount, setTriggeredAlertsCount] = useState(0);
+  const navigate = useNavigate();
 
   const fetchTriggeredAlerts = async () => {
     try {
@@ -93,11 +95,37 @@ export default function Dashboard() {
     setIsAlertsModalVisible(false);
   };
 
+  const handleOpenDeviceRegistration = () => {
+    navigate("/devices"); // Navigate to the Device Registration page
+  };
+
   return (
     <main className="py-3 px-5">
       <div className="flex justify-end">
         <button
+          className="border p-1 mr-2"
+          style={{
+            backgroundColor: "rgba(37,99,235,0.7)",
+            color: "black",
+            border: "1px solid rgba(37,99,235,0.7)",
+            fontWeight: "bold",
+            padding: "6px 12px",
+            borderRadius: "4px",
+          }}
+          onClick={handleOpenDeviceRegistration}
+        >
+          Device Registration
+        </button>
+        <button
           className="border p-1 mr-2 relative"
+          style={{
+            backgroundColor: "rgba(37,99,235,0.7)",
+            color: "black",
+            border: "1px solid rgba(37,99,235,0.7)",
+            fontWeight: "bold",
+            padding: "6px 12px",
+            borderRadius: "4px",
+          }}
           onClick={handleOpenAlertsModal}
         >
           View Alerts
@@ -109,6 +137,14 @@ export default function Dashboard() {
         </button>
         <button
           className="border p-1"
+          style={{
+            backgroundColor: "rgba(223,63,5 ,0.3)",
+            color: "black",
+            fontWeight: "bold",
+            border: "1px solid rgba(37,99,235,0.7)",
+            padding: "6px 12px",
+            borderRadius: "4px",
+          }}
           onClick={async () => {
             await logout();
             await refetch();
