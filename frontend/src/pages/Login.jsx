@@ -13,7 +13,7 @@ export default function Login() {
   }, [isLoggedIn]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-purple-900 bg-opacity-25">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-blue-900 bg-opacity-35">
       <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
         <div className="space-y-4">
           <h2 className="text-2xl font-bold text-center">Login</h2>
