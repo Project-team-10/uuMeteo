@@ -4,6 +4,7 @@ module.exports.getAllAlerts = () => {
     return new Promise((resolve, reject) => {
         db.all(`
         SELECT 
+          id,
           device_id, 
           upper_limit, 
           lower_limit, 
@@ -11,6 +12,7 @@ module.exports.getAllAlerts = () => {
         FROM alerts
       `, (err, rows) => {
             if (err) {
+                console.error('Error fetching alerts:', err);
                 reject(err);
             } else {
                 resolve(rows);
@@ -19,41 +21,36 @@ module.exports.getAllAlerts = () => {
     });
 };
 
-module.exports.createAlert = function (device_id, upper_limit, lower_limit) {
-    if (!device_id) {
-        return Promise.reject(new Error('Device ID is required to create an alert.'));
+module.exports.createAlert = async function (deviceId, upperLimit, lowerLimit) {
+
+    if (!deviceId || typeof deviceId !== 'string') {
+        console.error('Device ID is required to create an alert and must be a string.');
+        throw new Error('Device ID is required to create an alert and must be a string.');
     }
 
-    return new Promise((resolve, reject) => {
+    try {
         const stmt = db.prepare(
             `INSERT INTO alerts (device_id, upper_limit, lower_limit, triggered_at) VALUES (?, ?, ?, NULL)`
         );
-        stmt.run(device_id, upper_limit, lower_limit, (err) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve();
-            }
-        });
-    });
+        await stmt.run(deviceId, upperLimit, lowerLimit);
+        console.log('Alert created successfully.');
+    } catch (error) {
+        console.error('Error creating alert:', error);
+        throw error;
+    }
 };
 
-module.exports.clearAlertTrigger = function (device_id) {
-    const stmt = db.prepare(`UPDATE alerts SET triggered_at = NULL WHERE device_id = ?`);
-    stmt.run(device_id);
+module.exports.clearAlertTrigger = function (alertId) {
+    const stmt = db.prepare(`UPDATE alerts SET triggered_at = NULL WHERE id = ?`);
+    stmt.run(alertId);
 };
 
-module.exports.deleteAlert = function (device_id) {
-    const stmt = db.prepare(`DELETE FROM alerts WHERE device_id = ?`);
-    stmt.run(device_id);
+module.exports.deleteAlert = function (id) {
+    const stmt = db.prepare(`DELETE FROM alerts WHERE id = ?`);
+    stmt.run(id);
 };
 
-module.exports.updateAlertTrigger = function (device_id, triggeredAt) {
-    const stmt = db.prepare(`UPDATE alerts SET triggered_at = ? WHERE device_id = ?`);
-    stmt.run(triggeredAt, device_id);
-};
-
-module.exports.clearAlertTrigger = function (device_id) {
-    const stmt = db.prepare(`UPDATE alerts SET triggered_at = NULL WHERE device_id = ?`);
-    stmt.run(device_id);
+module.exports.updateAlertTrigger = function (alertId, triggeredAt) {
+    const stmt = db.prepare(`UPDATE alerts SET triggered_at = ? WHERE id = ?`);
+    stmt.run(triggeredAt, alertId);
 };

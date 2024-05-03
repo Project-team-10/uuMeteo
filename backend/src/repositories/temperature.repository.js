@@ -1,9 +1,12 @@
 const db = require("../db-setup");
 
 module.exports.getTemperaturesForDevice = function (deviceId, time) {
-  const stmt = db.prepare(`SELECT * FROM temperatures WHERE deviceId = ?
-  AND time >= strftime('%Y-%m-%d %H:%M:%S', 'now', '${time}')
-  ORDER BY time DESC
+  const stmt = db.prepare(`
+    SELECT * 
+    FROM temperatures
+    WHERE deviceId = ?
+    AND time >= strftime('%Y-%m-%d %H:%M:%S', 'now', '${time}')
+    ORDER BY time DESC
   `);
 
   return new Promise((resolve, reject) => {
@@ -15,6 +18,19 @@ module.exports.getTemperaturesForDevice = function (deviceId, time) {
       }
     });
   });
+};
+
+module.exports.getLatestTemperature = async function (deviceId) {
+  const stmt = db.prepare(`
+    SELECT value
+    FROM temperatures
+    WHERE deviceId = ?
+    ORDER BY time DESC
+    LIMIT 1
+  `);
+
+  const result = await stmt.get(deviceId);
+  return result ? result.value : null;
 };
 
 module.exports.addTemperature = function (value, time, deviceId) {

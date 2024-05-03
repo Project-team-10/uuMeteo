@@ -14,7 +14,6 @@ let db = new sqlite3.Database(dbPath, (err) => {
     CREATE TABLE IF NOT EXISTS alerts (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       device_id TEXT NOT NULL,
-      temperature REAL NOT NULL,
       upper_limit REAL,
       lower_limit REAL,
       triggered_at TIMESTAMP
