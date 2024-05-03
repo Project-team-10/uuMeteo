@@ -1,51 +1,71 @@
 import React, { useContext, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { MeContext } from "../contexts/MeContext";
-
-const BE_URL = import.meta.env.VITE_BE_URL;
 
 export default function Login() {
   const navigate = useNavigate();
-  const me = useContext(MeContext);
+  const { isLoggedIn } = useContext(MeContext);
 
   useEffect(() => {
-    if (me.isLoggedIn) {
+    if (isLoggedIn) {
       navigate("/");
     }
-  }, [me.isLoggedIn]);
+  }, [isLoggedIn]);
 
   return (
-    <div className="w-screen h-screen items-center flex justify-center flex-col">
-      <form
-        action={BE_URL + "/login/password"}
-        method="post"
-        className="flex flex-col items-center gap-5 w-[24rem] h-[16rem] border-blue-400 border-2 rounded-lg"
-      >
-        <h1 className="p-2 text-xl font-bold">Login</h1>
-        <input
-          type="text"
-          name="username"
-          placeholder="Username"
-          autoComplete="username"
-          autoFocus
-          required
-          className="bg-blue-200 text-center rounded-md"
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          autoComplete="current-password"
-          required
-          className="bg-blue-200 text-center rounded-md"
-        />
-        <button
-          type="submit"
-          className="bg-blue-600 hover:bg-blue-500 px-3 py-1"
-        >
-          Log In
-        </button>
-      </form>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-blue-500 bg-opacity-30">
+      <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold text-center">Login</h2>
+          <form
+            action={`${import.meta.env.VITE_BE_URL}/login/password`}
+            method="post"
+            className="space-y-2"
+          >
+            <label
+              htmlFor="username"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Username
+            </label>
+            <input
+              id="username"
+              name="username"
+              type="text"
+              placeholder="Username"
+              autoComplete="username"
+              autoFocus
+              required
+              className="appearance-none block w-full px-3 py-2 border border-gray-500 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Password
+                </label>
+              </div>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="Password"
+                autoComplete="current-password"
+                required
+                className="appearance-none block w-full px-3 py-2 border border-gray-500 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              Log in
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }
