@@ -32,7 +32,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     store: new SQLiteStore({ db: "sessions.db", dir: "./db" }),
-    cookie: { sameSite: "none" },
+    cookie: { sameSite: "none", secure: true },
   })
 );
 app.use(passport.authenticate("session"));
