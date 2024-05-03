@@ -25,6 +25,7 @@ var session = require("express-session");
 var SQLiteStore = require("connect-sqlite3")(session);
 var passport = require("passport");
 const { registerUser } = require("./src/services/auth.service");
+const { findUserByUsername } = require("./src/repositories/auth.repository");
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -46,7 +47,11 @@ app.use("/alerts", require("./src/controllers/alerts.controller"));
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);
 
-  registerUser(process.env.USERNAME, process.env.PASSWORD);
+  if (findUserByUsername(process.env.USERNAME)) {
+    console.log("Default user already exists.");
+  } else {
+    registerUser(process.env.USERNAME, process.env.PASSWORD);
+  }
 
   // Schedule the alert check job to run every minute
   setInterval(checkAndUpdateAlerts, 60000);
