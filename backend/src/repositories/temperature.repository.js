@@ -33,12 +33,32 @@ module.exports.getLatestTemperature = async function (deviceId) {
   return result ? result.value : null;
 };
 
-module.exports.addTemperature = function (value, time, deviceId) {
+module.exports.getLastTemperatures = function () {
+  const stmt =
+    db.prepare(`SELECT t.deviceId as deviceId, MAX(t.value) AS value, t.time AS time
+  FROM temperatures t
+  GROUP BY t.deviceId
+  `);
+
+  return new Promise((resolve, reject) => {
+    stmt.all((err, row) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(row);
+      }
+    });
+  });
+};
+
+module.exports.addTemperatures = function (values, deviceId) {
   const stmt = db.prepare(
     `INSERT INTO temperatures (value, time, deviceId) VALUES (?, ?, ?)`
   );
 
-  stmt.run(value, time, deviceId);
+  for (const value of values) {
+    stmt.run(value.temperature, value.time, deviceId);
+  }
 };
 
 module.exports.deleteTemperatures = function (deviceId) {

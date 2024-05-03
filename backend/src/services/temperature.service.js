@@ -1,15 +1,15 @@
 const { getDeviceBySecretKey } = require("../repositories/device.repository");
 const {
-  addTemperature,
+  addTemperatures,
   deleteTemperatures,
 } = require("../repositories/temperature.repository");
 
-module.exports.addTemperature = async function (value, time, secretKey) {
+module.exports.addTemperatures = async function (values, secretKey) {
   const device = await getDeviceBySecretKey(secretKey);
   if (!device) {
     throw new Error("Device not found");
   }
-  addTemperature(value, time, device.deviceId);
+  addTemperatures(values, device.deviceId);
 };
 
 module.exports.deleteTemperatures = async function (secretKey) {

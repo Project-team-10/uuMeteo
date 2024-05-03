@@ -4,18 +4,24 @@ const { validateRequest } = require("zod-express-middleware");
 const { z } = require("zod");
 const {
   getTemperaturesForDevice,
+  getLastTemperatures: getLastTemperatureForDevice,
+  getLastTemperatures,
 } = require("../repositories/temperature.repository");
 const {
-  addTemperature,
+  addTemperatures: addTemperature,
   deleteTemperatures,
 } = require("../services/temperature.service");
 
 const router = new Router();
 
-router.use(authMiddleware);
+router.get("/realtime", authMiddleware, async (req, res) => {
+  const temperatures = await getLastTemperatures();
+  return res.json(temperatures);
+});
 
 router.get(
   "/:deviceId",
+  authMiddleware,
   validateRequest({
     params: z.object({
       deviceId: z.string(),
@@ -43,18 +49,18 @@ router.post(
   "/",
   validateRequest({
     body: z.object({
-      temperature: z.number(),
-      time: z.string(),
+      values: z.array(
+        z.object({
+          temperature: z.number(),
+          time: z.string(),
+        })
+      ),
       secretKey: z.string(),
     }),
   }),
   async (req, res) => {
     try {
-      await addTemperature(
-        req.body.temperature,
-        req.body.time,
-        req.body.secretKey
-      );
+      await addTemperature(req.body.values, req.body.secretKey);
       return res.sendStatus(200);
     } catch (e) {
       console.error(e);

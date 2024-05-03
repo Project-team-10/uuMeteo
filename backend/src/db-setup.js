@@ -9,6 +9,9 @@ let db = new sqlite3.Database(dbPath, (err) => {
   }
   console.log("Connected to the SQLite database.");
 
+  // Enable foreign key support
+  db.run("PRAGMA foreign_keys = ON", handleErrorCallback);
+
   // Create the `alerts` table if it doesn't exist
   db.run(`
     CREATE TABLE IF NOT EXISTS alerts (
@@ -44,8 +47,6 @@ let db = new sqlite3.Database(dbPath, (err) => {
     handleErrorCallback
   );
 
-  // Enable foreign key support
-  db.run("PRAGMA foreign_keys = ON", handleErrorCallback);
 });
 
 function handleErrorCallback(err) {
