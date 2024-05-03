@@ -26,6 +26,7 @@ var SQLiteStore = require("connect-sqlite3")(session);
 var passport = require("passport");
 const { registerUser } = require("./src/services/auth.service");
 const { findUserByUsername } = require("./src/repositories/auth.repository");
+app.set("trust proxy", 1); // trust first proxy
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
