@@ -1,16 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { createAlert } from '../services/apis';
 
-const AlertSettings = ({ deviceId, onClose }) => {
+const AlertSettings = ({ onClose, devices, onAlertCreated }) => {
     const [upperLimit, setUpperLimit] = useState(0);
     const [lowerLimit, setLowerLimit] = useState(0);
     const [alertName, setAlertName] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+    const [selectedDevice, setSelectedDevice] = useState(null);
 
     const handleSaveAlert = async () => {
+        if (!selectedDevice || typeof selectedDevice !== 'string') {
+            console.error('Device ID is required to create an alert and must be a string.');
+            setErrorMessage('Device ID is required to create an alert and must be a string.');
+            return;
+        }
+
         try {
-            await createAlert(deviceId, upperLimit, lowerLimit);
+            await createAlert(selectedDevice, upperLimit, lowerLimit);
             onClose();
+            onAlertCreated(); // Call the onAlertCreated prop
             // Display a success message or update the UI
         } catch (error) {
             console.error('Error creating alert:', error);
@@ -20,6 +28,11 @@ const AlertSettings = ({ deviceId, onClose }) => {
 
     const handleCloseModal = () => {
         onClose();
+    };
+
+    const handleDeviceSelect = (event) => {
+        const selectedDeviceId = event.target.value;
+        setSelectedDevice(selectedDeviceId);
     };
 
     return (
@@ -36,20 +49,29 @@ const AlertSettings = ({ deviceId, onClose }) => {
                                     <strong className="font-bold">Error:</strong> {errorMessage}
                                 </div>
                             )}
-                            <div className="mt-2">
-                                <div className="mb-4">
-                                    <label className="block text-gray-700 font-bold mb-2" htmlFor="alert-name">
-                                        Alert Name
+                            {devices && devices.length > 0 ? (
+                                <div className="mt-4">
+                                    <label htmlFor="device-select" className="block text-gray-700 font-bold mb-2">
+                                        Select Device
                                     </label>
-                                    <input
+                                    <select
+                                        id="device-select"
                                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                                        id="alert-name"
-                                        type="text"
-                                        placeholder="Enter a name for the alert"
-                                        value={alertName}
-                                        onChange={(e) => setAlertName(e.target.value)}
-                                    />
+                                        value={selectedDevice || ''}
+                                        onChange={handleDeviceSelect}
+                                    >
+                                        <option value="">Select a device</option>
+                                        {devices.map((device) => (
+                                            <option key={device.deviceId} value={device.deviceId}>
+                                                {device.name}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
+                            ) : (
+                                <p className="text-gray-500 mt-4">No devices found.</p>
+                            )}
+                            <div className="mt-2">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-gray-700 font-bold mb-2" htmlFor="temperature-below">
