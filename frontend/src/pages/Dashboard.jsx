@@ -1,9 +1,15 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { fetchDevices, fetchTemperatures, fetchAlerts, logout } from '../services/apis';
-import Graph from '../components/Graph';
-import { MeContext } from '../contexts/MeContext';
-import AlertSettings from '../components/AlertSettings';
-import AlertsModal from '../components/AlertsModal';
+import React, { useContext, useEffect, useState } from "react";
+import AlertSettings from "../components/AlertSettings";
+import AlertsModal from "../components/AlertsModal";
+import Graph from "../components/Graph";
+import { MeContext } from "../contexts/MeContext";
+import { useInterval } from "../hooks/useInterval";
+import {
+  fetchAlerts,
+  fetchDevices,
+  fetchTemperatures,
+  logout,
+} from "../services/apis";
 
 const UPDATE_INTERVAL = 5000;
 
@@ -22,56 +28,62 @@ export default function Dashboard() {
       const alerts = await fetchAlerts();
 
       // Filter the alerts to only include the triggered ones
-      const triggeredAlerts = alerts.filter((alert) => alert.triggered_at !== null);
+      const triggeredAlerts = alerts.filter(
+        (alert) => alert.triggered_at !== null
+      );
 
       setTriggeredAlerts(triggeredAlerts);
       setTriggeredAlertsCount(triggeredAlerts.length);
     } catch (error) {
-      console.error('Error fetching triggered alerts:', error);
+      console.error("Error fetching triggered alerts:", error);
     }
   };
 
-  const { refetch } = useContext(MeContext);
-  
-  useEffect(() => {
-    const fetchData = async () => {
-      const devices = await fetchDevices();
-      setDevices(devices);
+  const fetchTemperaturesAndDevices = async () => {
+    const devices = await fetchDevices();
+    setDevices(devices);
 
-      const fetchTemperatureData = async () => {
-        const temperatureData = await Promise.all(
-          devices.map(async (device) => {
-            const t = await fetchTemperatures(
-              device.deviceId,
-              deviceTimeFrames[device.deviceId] || '1h'
-            );
-            return { deviceId: device.deviceId, temperatures: t };
-          })
-        );
+    const fetchTemperatureData = async () => {
+      const temperatureData = await Promise.all(
+        devices.map(async (device) => {
+          const t = await fetchTemperatures(
+            device.deviceId,
+            deviceTimeFrames[device.deviceId] || "1h"
+          );
+          return { deviceId: device.deviceId, temperatures: t };
+        })
+      );
 
-        const temperatures = temperatureData.reduce(
-          (acc, { deviceId, temperatures }) => {
-            return { ...acc, [deviceId]: temperatures };
-          },
-          {}
-        );
+      const temperatures = temperatureData.reduce(
+        (acc, { deviceId, temperatures }) => {
+          return { ...acc, [deviceId]: temperatures };
+        },
+        {}
+      );
 
-        setTemperatures(temperatures);
-      };
-
-      fetchTemperatureData();
-      fetchTriggeredAlerts();
-
-      const interval = setInterval(() => {
-        fetchTemperatureData();
-        fetchTriggeredAlerts(); // Call fetchTriggeredAlerts unconditionally
-      }, UPDATE_INTERVAL);
-
-      return () => clearInterval(interval);
+      setTemperatures(temperatures);
     };
 
-    fetchData();
+    fetchTemperatureData();
+  };
+
+  useInterval(fetchTriggeredAlerts, UPDATE_INTERVAL);
+  useInterval(fetchTemperaturesAndDevices, UPDATE_INTERVAL);
+
+  useEffect(() => {
+    (async () => {
+      await fetchTemperaturesAndDevices();
+      await fetchTriggeredAlerts();
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      await fetchTemperaturesAndDevices();
+    })();
   }, [deviceTimeFrames]);
+
+  const { refetch } = useContext(MeContext);
 
   const handleOpenAlertsModal = () => {
     setIsAlertsModalVisible(true);
@@ -123,8 +135,6 @@ export default function Dashboard() {
               >
                 <option value="1h">1 hour</option>
                 <option value="1d">1 day</option>
-                <option value="1w">1 week</option>
-                <option value="1m">1 month</option>
               </select>
             </div>
           </div>
@@ -145,7 +155,6 @@ export default function Dashboard() {
           onClose={handleCloseAlertsModal}
           devices={devices}
         />
-
       )}
     </main>
   );

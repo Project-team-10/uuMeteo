@@ -5,7 +5,7 @@ function Graph({ name, data }) {
   return (
     <div className="grid grid-rows-7 justify-center pt-20 pb-5 col-span-1">
       <h1 className="row-span-1 text-center pt-3 font-bold">
-        {name}: {data?.[data.length - 1]?.value} °C
+        {name}: {data?.[data.length - 1]?.value?.toFixed(2)} °C
       </h1>
 
       {data ? (
