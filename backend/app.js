@@ -24,6 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 var session = require("express-session");
 var SQLiteStore = require("connect-sqlite3")(session);
 var passport = require("passport");
+const { registerUser } = require("./src/services/auth.service");
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -43,6 +44,8 @@ app.use("/alerts", require("./src/controllers/alerts.controller"));
 // Start the server
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);
+
+  registerUser(process.env.USERNAME, process.env.PASSWORD);
 
   // Schedule the alert check job to run every minute
   setInterval(checkAndUpdateAlerts, 60000);
