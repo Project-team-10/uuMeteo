@@ -1,4 +1,5 @@
 const db = require("../db-setup");
+const { parse } = require("date-fns");
 
 module.exports.getTemperaturesForDevice = function (deviceId, time) {
   const stmt = db.prepare(`
@@ -48,6 +49,108 @@ module.exports.getLastTemperatures = function () {
         resolve(row);
       }
     });
+  });
+};
+
+module.exports.getHourlyTemperatures = (deviceId, from, to) => {
+  return new Promise((resolve, reject) => {
+    db.all(
+      `
+      WITH TimeDiff AS (
+        SELECT
+            deviceId,
+            value AS temperature,
+            time,
+            strftime('%s', time) - COALESCE(strftime('%s', LAG(time) OVER (PARTITION BY deviceId ORDER BY time)), strftime('%s', time)) AS diff_in_seconds
+        FROM
+            temperatures
+        WHERE deviceId = '${deviceId}' AND time >= '${from.toISOString()}' AND time < '${to.toISOString()}'
+      ),
+      WeightedTemps AS (
+        SELECT
+            deviceId,
+            temperature,
+            time,
+            CAST(diff_in_seconds / 60.0 AS REAL) AS weight_minutes -- Calculate the weight as minutes
+        FROM
+            TimeDiff
+      ),
+      HourlyWeightedAverages AS (
+        SELECT
+            deviceId,
+            strftime('%Y-%m-%d %H', time) AS time,
+            SUM(temperature * weight_minutes) / SUM(weight_minutes) AS value
+        FROM
+            WeightedTemps
+        GROUP BY
+            deviceId, strftime('%Y-%m-%d %H', time)
+      )
+      SELECT * FROM HourlyWeightedAverages;
+      `,
+      (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(
+            rows.map((row) => ({
+              ...row,
+              time: parse(row.time, "yyyy-MM-dd HH", new Date()),
+            }))
+          );
+        }
+      }
+    );
+  });
+};
+
+module.exports.getDailyTemperatures = (deviceId, from, to) => {
+  return new Promise((resolve, reject) => {
+    db.all(
+      `
+      WITH TimeDiff AS (
+        SELECT
+            deviceId,
+            value AS temperature,
+            time,
+            strftime('%s', time) - COALESCE(strftime('%s', LAG(time) OVER (PARTITION BY deviceId ORDER BY time)), strftime('%s', time)) AS diff_in_seconds
+        FROM
+            temperatures
+        WHERE deviceId = '${deviceId}' AND time >= '${from.toISOString()}' AND time < '${to.toISOString()}'
+      ),
+      WeightedTemps AS (
+        SELECT
+            deviceId,
+            temperature,
+            time,
+            CAST(diff_in_seconds / 60.0 AS REAL) AS weight_minutes -- Calculate the weight as minutes
+        FROM
+            TimeDiff
+      ),
+      DailyWeightedAverages AS (
+        SELECT
+            deviceId,
+            strftime('%Y-%m-%d', time) AS time,
+            SUM(temperature * weight_minutes) / SUM(weight_minutes) AS value
+        FROM
+            WeightedTemps
+        GROUP BY
+            deviceId, strftime('%Y-%m-%d', time)
+      )
+      SELECT * FROM DailyWeightedAverages;
+`,
+      (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(
+            rows.map((row) => ({
+              ...row,
+              time: parse(row.time, "yyyy-MM-dd", new Date()),
+            }))
+          );
+        }
+      }
+    );
   });
 };
 

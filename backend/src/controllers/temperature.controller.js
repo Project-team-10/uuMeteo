@@ -6,9 +6,11 @@ const {
   getTemperaturesForDevice,
   getLastTemperatures: getLastTemperatureForDevice,
   getLastTemperatures,
+  getHourlyTemperatures,
+  getDailyTemperatures,
 } = require("../repositories/temperature.repository");
 const {
-  addTemperatures: addTemperature,
+  addTemperatures,
   deleteTemperatures,
 } = require("../services/temperature.service");
 
@@ -24,24 +26,26 @@ router.get(
   authMiddleware,
   validateRequest({
     params: z.object({
-      deviceId: z.string(),
+      deviceId: z.string().uuid(),
     }),
     query: z.object({
-      time: z.enum(["1h", "1d", "1w", "1m"]),
+      time: z.enum(["1h", "1d"]),
+      from: z.coerce.date(),
+      to: z.coerce.date(),
     }),
   }),
   async (req, res) => {
-    let time;
-    if (req.query.time === "1h") time = "-1 hour";
-    if (req.query.time === "1d") time = "-1 day";
-    if (req.query.time === "1w") time = "-7 day";
-    if (req.query.time === "1m") time = "-1 month";
+    const from = new Date(req.query.from);
+    const to = new Date(req.query.to);
 
-    const temperatures = await getTemperaturesForDevice(
-      req.params.deviceId,
-      time
-    );
-    return res.json(temperatures);
+    if (req.query.time === "1h")
+      return res.json(
+        await getHourlyTemperatures(req.params.deviceId, from, to)
+      );
+    if (req.query.time === "1d")
+      return res.json(
+        await getDailyTemperatures(req.params.deviceId, from, to)
+      );
   }
 );
 
@@ -60,7 +64,7 @@ router.post(
   }),
   async (req, res) => {
     try {
-      await addTemperature(req.body.values, req.body.secretKey);
+      await addTemperatures(req.body.values, req.body.secretKey);
       return res.sendStatus(200);
     } catch (e) {
       console.error(e);
