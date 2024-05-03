@@ -28,7 +28,7 @@ export async function fetchDevices() {
 
 export async function fetchTemperatures(deviceId, timeFrame) {
   const res = await fetch(
-    `${BE_URL}/temperatures/${deviceId}?time=${timeFrame}`,
+    `${BE_URL}/temperatures/${deviceId}?time=${timeFrame}&from=${new Date("2024-04-01").toISOString()}&to=${new Date().toISOString()}`,
     {
       credentials: "include",
     }
