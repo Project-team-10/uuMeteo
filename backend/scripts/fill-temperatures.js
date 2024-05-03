@@ -28,6 +28,11 @@ const { subMinutes } = require("date-fns");
         time: subMinutes(new Date(), i).toISOString(),
       });
     }
+
+    // require("fs").writeFileSync(
+    //   `temperatures-${device.deviceId}.json`,
+    //   JSON.stringify(values))
+
     addTemperatures(values, device.deviceId);
   }
 })();

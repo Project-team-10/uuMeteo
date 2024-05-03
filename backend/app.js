@@ -15,7 +15,7 @@ app.use(
 ); // Enable CORS for all routes
 
 // use JSONs
-app.use(express.json());
+app.use(express.json({limit: '50mb'}));
 
 // for url encoded content type
 app.use(express.urlencoded({ extended: true }));
