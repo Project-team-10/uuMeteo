@@ -6,7 +6,13 @@ const { checkAndUpdateAlerts } = require("./src/services/alerts.service");
 
 const app = express();
 
-app.use(cors({ credentials: true, origin: process.env.FE_URL })); // Enable CORS for all routes
+app.use(
+  cors({
+    credentials: true,
+    origin: process.env.FE_URL,
+    exposedHeaders: ["Set-cookie"],
+  })
+); // Enable CORS for all routes
 
 // use JSONs
 app.use(express.json());

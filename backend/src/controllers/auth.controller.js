@@ -10,7 +10,7 @@ router.post(
   "/login/password",
   passport.authenticate("local", {
     successRedirect: `${FE_URL}`,
-    failureRedirect: `${FE_URL}#/login`,
+    // failureRedirect: `${FE_URL}#/login`,
   })
 );
 
