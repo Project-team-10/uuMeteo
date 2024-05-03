@@ -1,4 +1,5 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "react-query";
+import { HashRouter, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./AuthProvider";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
@@ -10,7 +11,7 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+      <HashRouter>
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Dashboard />} />
@@ -18,7 +19,7 @@ function App() {
             <Route path="/devices" element={<DeviceRegistration />} />
           </Routes>
         </AuthProvider>
-      </BrowserRouter>
+      </HashRouter>
     </QueryClientProvider>
   );
 }

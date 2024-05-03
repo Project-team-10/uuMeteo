@@ -35,7 +35,7 @@ export default function Dashboard() {
       );
 
       setTriggeredAlerts(triggeredAlerts);
-      setTriggeredAlertsCount(triggeredAlerts.length);
+      setTriggeredAlertsCount(triggeredAlerts?.length ?? 0);
     } catch (error) {
       console.error("Error fetching triggered alerts:", error);
     }

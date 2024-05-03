@@ -1,13 +1,18 @@
-require('dotenv').config();
+require("dotenv").config();
 
 const express = require("express");
-const bodyParser = require("body-parser");
 const cors = require("cors");
 const { checkAndUpdateAlerts } = require("./src/services/alerts.service");
 
 const app = express();
 
-app.use(cors({ credentials: true, origin: process.env.FE_URL })); // Enable CORS for all routes
+app.use(
+  cors({
+    credentials: true,
+    origin: process.env.FE_URL,
+    exposedHeaders: ["Set-cookie"],
+  })
+); // Enable CORS for all routes
 
 // use JSONs
 app.use(express.json());
@@ -24,7 +29,7 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    store: new SQLiteStore({ db: "sessions.db", dir: "./" }),
+    store: new SQLiteStore({ db: "sessions.db", dir: "./db" }),
   })
 );
 app.use(passport.authenticate("session"));

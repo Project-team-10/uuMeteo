@@ -3,7 +3,7 @@ const path = require("path");
 const { promisify } = require("util");
 
 // Connect to a SQLite database.
-let dbPath = path.resolve(process.cwd(), "database.sqlite");
+let dbPath = path.resolve(process.cwd(), "./db/database.sqlite");
 let db = new sqlite3.Database(dbPath, async (err) => {
   const dbRun = promisify(db.run.bind(db));
 
