@@ -23,6 +23,7 @@ export default function Dashboard() {
   const [selectedDevice, setSelectedDevice] = useState(null);
   const [triggeredAlerts, setTriggeredAlerts] = useState([]);
   const [triggeredAlertsCount, setTriggeredAlertsCount] = useState(0);
+
   const navigate = useNavigate();
 
   const fetchTriggeredAlerts = async () => {

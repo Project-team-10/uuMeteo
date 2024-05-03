@@ -4,7 +4,6 @@ import { AuthProvider } from "./AuthProvider";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import DeviceRegistration from "./pages/DeviceRegistration";
-import { QueryClient, QueryClientProvider } from "react-query";
 
 const queryClient = new QueryClient();
 
