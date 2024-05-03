@@ -1,8 +1,6 @@
 const { Router } = require("express");
 const authMiddleware = require("../auth-middleware");
-const { getAllAlerts, createAlert } = require("../repositories/alerts.repository");
-
-const router = new Router();
+const { getAllAlerts, createAlert, clearAlertTrigger, deleteAlert } = require("../repositories/alerts.repository"); const router = new Router();
 
 router.use(authMiddleware);
 
@@ -16,18 +14,18 @@ router.post("/", async (req, res) => {
 
     try {
         await createAlert(deviceId, upperLimit, lowerLimit);
-        return res.status(200).send("Alert created");
+        return res.status(200).json({ message: "Alert created" });
     } catch (error) {
         console.error(error);
-        return res.status(400).send("Error creating alert");
+        return res.status(400).json({ message: "Error creating alert" });
     }
 });
 
-router.put("/clear", async (req, res) => {
-    const { deviceId } = req.body;
+router.put("/:id/clear", async (req, res) => {
+    const alertId = req.params.id;
 
     try {
-        await clearAlertTrigger(deviceId);
+        await clearAlertTrigger(alertId);
         return res.status(200).send("Alert cleared");
     } catch (error) {
         console.error(error);
@@ -36,11 +34,11 @@ router.put("/clear", async (req, res) => {
 });
 
 
-router.delete("/", async (req, res) => {
-    const { deviceId } = req.body;
+router.delete("/:id", async (req, res) => {
+    const alertId = req.params.id;
 
     try {
-        await deleteAlert(deviceId);
+        await deleteAlert(alertId);
         return res.status(200).send("Alert deleted");
     } catch (error) {
         console.error(error);

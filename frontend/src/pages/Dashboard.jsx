@@ -1,8 +1,9 @@
-import { useContext, useEffect, useState } from "react";
+import React, { useState, useEffect, useContext } from 'react';
 import { fetchDevices, fetchTemperatures, fetchAlerts, logout } from '../services/apis';
 import Graph from '../components/Graph';
 import { MeContext } from '../contexts/MeContext';
 import AlertSettings from '../components/AlertSettings';
+import AlertsModal from '../components/AlertsModal';
 
 const UPDATE_INTERVAL = 5000;
 
@@ -11,21 +12,27 @@ export default function Dashboard() {
   const [devices, setDevices] = useState([]);
   const [deviceTimeFrames, setDeviceTimeFrames] = useState({});
   const [isAlertSettingsVisible, setIsAlertSettingsVisible] = useState(false);
+  const [isAlertsModalVisible, setIsAlertsModalVisible] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState(null);
   const [triggeredAlerts, setTriggeredAlerts] = useState([]);
-
-  const { refetch } = useContext(MeContext);
+  const [triggeredAlertsCount, setTriggeredAlertsCount] = useState(0);
 
   const fetchTriggeredAlerts = async () => {
     try {
       const alerts = await fetchAlerts();
-      const triggeredAlerts = alerts.filter((alert) => alert.triggered_at);
+
+      // Filter the alerts to only include the triggered ones
+      const triggeredAlerts = alerts.filter((alert) => alert.triggered_at !== null);
+
       setTriggeredAlerts(triggeredAlerts);
+      setTriggeredAlertsCount(triggeredAlerts.length);
     } catch (error) {
       console.error('Error fetching triggered alerts:', error);
     }
   };
 
+  const { refetch } = useContext(MeContext);
+  
   useEffect(() => {
     const fetchData = async () => {
       const devices = await fetchDevices();
@@ -57,7 +64,7 @@ export default function Dashboard() {
 
       const interval = setInterval(() => {
         fetchTemperatureData();
-        fetchTriggeredAlerts();
+        fetchTriggeredAlerts(); // Call fetchTriggeredAlerts unconditionally
       }, UPDATE_INTERVAL);
 
       return () => clearInterval(interval);
@@ -66,14 +73,27 @@ export default function Dashboard() {
     fetchData();
   }, [deviceTimeFrames]);
 
+  const handleOpenAlertsModal = () => {
+    setIsAlertsModalVisible(true);
+  };
+
+  const handleCloseAlertsModal = () => {
+    setIsAlertsModalVisible(false);
+  };
+
   return (
     <main className="py-3 px-5">
       <div className="flex justify-end">
         <button
-          className="border p-1 mr-2"
-          onClick={() => setIsAlertSettingsVisible(true)}
+          className="border p-1 mr-2 relative"
+          onClick={handleOpenAlertsModal}
         >
-          Set Alerts
+          View Alerts
+          {triggeredAlertsCount > 0 && (
+            <span className="absolute top-0 right-0 bg-red-500 text-white px-2 py-1 rounded-full text-xs">
+              {triggeredAlertsCount}
+            </span>
+          )}
         </button>
         <button
           className="border p-1"
@@ -115,34 +135,18 @@ export default function Dashboard() {
         <AlertSettings
           deviceId={selectedDevice}
           onClose={() => setIsAlertSettingsVisible(false)}
+          devices={devices}
         />
       )}
 
-      <div>
-        <h2 className="text-2xl font-bold mb-4">Triggered Alerts</h2>
-        {triggeredAlerts.length > 0 ? (
-          <ul>
-            {triggeredAlerts.map((alert, index) => (
-              <li key={index} className="bg-red-100 p-4 rounded-lg mb-2">
-                <p>
-                  Device ID: <span className="font-bold">{alert.deviceId}</span>
-                </p>
-                <p>
-                  Triggered at: <span className="font-bold">{alert.triggered_at}</span>
-                </p>
-                <p>
-                  Upper Limit: <span className="font-bold">{alert.upperLimit}</span>
-                </p>
-                <p>
-                  Lower Limit: <span className="font-bold">{alert.lowerLimit}</span>
-                </p>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No triggered alerts.</p>
-        )}
-      </div>
+      {isAlertsModalVisible && (
+        <AlertsModal
+          isVisible={isAlertsModalVisible}
+          onClose={handleCloseAlertsModal}
+          devices={devices}
+        />
+
+      )}
     </main>
   );
 }

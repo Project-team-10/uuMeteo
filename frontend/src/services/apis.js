@@ -67,30 +67,37 @@ export async function fetchAlerts() {
 }
 
 export async function createAlert(deviceId, upperLimit, lowerLimit) {
-  const res = await fetch(`${BE_URL}/alerts`, {
-    credentials: "include",
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ deviceId, upperLimit, lowerLimit }),
-  });
+  try {
+    const response = await fetch(`${BE_URL}/alerts`, {
+      credentials: "include",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ deviceId, upperLimit, lowerLimit }),
+    });
 
-  if (!res.ok) {
-    throw new Error(`Error creating alert: ${res.status} - ${res.statusText}`);
+    if (!response.ok) {
+      const errorMessage = `Error creating alert: ${response.status} - ${response.statusText}`;
+      console.error(errorMessage);
+      throw new Error(errorMessage);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error creating alert:', error);
+    throw error;
   }
-
-  return await res.json();
 }
 
-export async function clearAlert(deviceId) {
-  const res = await fetch(`${BE_URL}/alerts/clear`, {
+export async function clearAlert(alertId) {
+  const res = await fetch(`${BE_URL}/alerts/${alertId}/clear`, {
     credentials: "include",
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ deviceId }),
   });
 
   if (!res.ok) {
@@ -98,14 +105,13 @@ export async function clearAlert(deviceId) {
   }
 }
 
-export async function deleteAlert(deviceId) {
-  const res = await fetch(`${BE_URL}/alerts`, {
+export async function deleteAlert(alertId) {
+  const res = await fetch(`${BE_URL}/alerts/${alertId}`, {
     credentials: "include",
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ deviceId }),
   });
 
   if (!res.ok) {
