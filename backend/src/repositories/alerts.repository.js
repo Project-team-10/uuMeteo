@@ -24,6 +24,31 @@ module.exports.getAllAlerts = () => {
   });
 };
 
+module.exports.getAlertsForDevice = (deviceId) => {
+  return new Promise((resolve, reject) => {
+    db.all(
+      `
+        SELECT 
+          id,
+          device_id, 
+          upper_limit, 
+          lower_limit, 
+          triggered_at
+        FROM alerts
+        WHERE device_id = '${deviceId}'
+      `,
+      (err, rows) => {
+        if (err) {
+          console.error("Error fetching alerts:", err);
+          reject(err);
+        } else {
+          resolve(rows);
+        }
+      }
+    );
+  });
+};
+
 module.exports.createAlert = async function (deviceId, upperLimit, lowerLimit) {
   if (!deviceId || typeof deviceId !== "string") {
     console.error(

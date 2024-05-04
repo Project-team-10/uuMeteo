@@ -16,7 +16,7 @@ import {
 
 const HISTORICAL_TEMPERATURES_UPDATE_INTERVAL = 60000;
 const REAL_TIME_TEMPERATURES_UPDATE_INTERVAL = 5000;
-const ALERTS_UPDATE_INTERVAL = 60000;
+const ALERTS_UPDATE_INTERVAL = 2000;
 
 export default function Dashboard() {
   const [historicalTemperatures, setHistoricalTemperatures] = useState({});

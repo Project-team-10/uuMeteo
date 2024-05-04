@@ -61,7 +61,4 @@ app.listen(process.env.PORT, async () => {
     console.log("Registered default user.");
     registerUser(process.env.USERNAME, process.env.PASSWORD);
   }
-
-  // Schedule the alert check job to run every minute
-  setInterval(checkAndUpdateAlerts, 60000);
 });

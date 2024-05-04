@@ -4,20 +4,24 @@ const {
 const {
   getAllAlerts,
   updateAlertTrigger,
+  getAlertsForDevice,
 } = require("../repositories/alerts.repository");
 
-async function checkAndUpdateAlerts() {
-  console.log("Checking and updating alerts...");
+async function checkAlerts(deviceId, measurements) {
   try {
-    const alerts = await getAllAlerts();
+    const alerts = await getAlertsForDevice(deviceId);
     for (const alert of alerts) {
-      const latestTemperature = await getLatestTemperature(alert.device_id);
-      if (
-        latestTemperature >= alert.upper_limit ||
-        latestTemperature <= alert.lower_limit
-      ) {
-        await updateAlertTrigger(alert.id, new Date().toISOString());
-        console.log(`Alert for device ${alert.device_id} triggered.`);
+      for (const measurement of measurements) {
+        if (
+          measurement.temperature >= alert.upper_limit ||
+          measurement.temperature <= alert.lower_limit
+        ) {
+          updateAlertTrigger(
+            alert.id,
+            new Date(measurement.time).toISOString()
+          );
+          console.log(`Alert for device ${alert.device_id} triggered.`);
+        }
       }
     }
   } catch (error) {
@@ -26,5 +30,5 @@ async function checkAndUpdateAlerts() {
 }
 
 module.exports = {
-  checkAndUpdateAlerts,
+  checkAlerts,
 };
