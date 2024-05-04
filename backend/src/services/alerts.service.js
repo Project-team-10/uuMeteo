@@ -11,9 +11,7 @@ async function checkAndUpdateAlerts() {
   try {
     const alerts = await getAllAlerts();
     for (const alert of alerts) {
-      console.log(alert);
       const latestTemperature = await getLatestTemperature(alert.device_id);
-      console.log(latestTemperature);
       if (
         latestTemperature >= alert.upper_limit ||
         latestTemperature <= alert.lower_limit
