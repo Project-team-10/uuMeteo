@@ -2,7 +2,28 @@ import { LineChart } from "@mui/x-charts/LineChart";
 import { formatRelative } from "date-fns";
 
 function Graph({ name, data, realTime, alert }) {
-  console.log(alert);
+  let series = [];
+
+  if (data) {
+    series.push({
+      data: data.map((item) => item.value),
+    });
+
+    if (alert) {
+      series.push(
+        {
+          data: data.map((i) => alert.lower_limit),
+          color: "red",
+          showMark: false,
+        },
+        {
+          data: data.map((i) => alert.upper_limit),
+          color: "red",
+          showMark: false,
+        }
+      );
+    }
+  }
   return (
     <div className="flex justify-center pt-10 pb-2 flex-col">
       <h1 className="row-span-1 text-center pt-3 font-bold">
@@ -28,25 +49,7 @@ function Graph({ name, data, realTime, alert }) {
                 label: "°C",
               },
             ]}
-            series={[
-              {
-                data: data.map((item) => item.value),
-              },
-              alert
-                ? {
-                    data: data.map((i) => alert.lower_limit),
-                    color: "red",
-                    showMark: false,
-                  }
-                : { data: [] },
-              alert
-                ? {
-                    data: data.map((i) => alert.upper_limit),
-                    color: "red",
-                    showMark: false,
-                  }
-                : { data: [] },
-            ]}
+            series={series}
             width={500}
             height={300}
           />
