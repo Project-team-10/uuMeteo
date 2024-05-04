@@ -154,6 +154,26 @@ module.exports.getDailyTemperatures = (deviceId, from, to) => {
   });
 };
 
+module.exports.getAllTemperatures = function (deviceId) {
+  const stmt = db.prepare(`
+    SELECT * 
+    FROM temperatures
+    WHERE deviceId = ?
+    ORDER BY time DESC
+  `);
+
+  return new Promise((resolve, reject) => {
+    stmt.all(deviceId, (err, rows) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(rows);
+      }
+    });
+  });
+
+}
+
 module.exports.addTemperatures = function (values, deviceId) {
   const stmt = db.prepare(
     `INSERT INTO temperatures (value, time, deviceId) VALUES (?, ?, ?)`

@@ -8,6 +8,7 @@ const {
   getLastTemperatures,
   getHourlyTemperatures,
   getDailyTemperatures,
+  getAllTemperatures,
 } = require("../repositories/temperature.repository");
 const {
   addTemperatures,
@@ -46,6 +47,19 @@ router.get(
       return res.json(
         await getDailyTemperatures(req.params.deviceId, from, to)
       );
+  }
+);
+
+router.get(
+  "/:deviceId/debug",
+  authMiddleware,
+  validateRequest({
+    params: z.object({
+      deviceId: z.string().uuid(),
+    }),
+  }),
+  async (req, res) => {
+    return res.json(await getAllTemperatures(req.params.deviceId));
   }
 );
 
