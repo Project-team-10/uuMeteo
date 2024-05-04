@@ -9,6 +9,7 @@ const {
   getHourlyTemperatures,
   getDailyTemperatures,
   getAllTemperatures,
+  deleteTemperatureByTime,
 } = require("../repositories/temperature.repository");
 const {
   addTemperatures,
@@ -75,9 +76,8 @@ router.delete(
     }),
   }),
   async (req, res) => {
-    return res.json(
-      await getAllTemperatures(req.params.deviceId, req.query.time)
-    );
+    await deleteTemperatureByTime(req.params.deviceId, req.query.time);
+    return res.sendStatus(200);
   }
 );
 
