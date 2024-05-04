@@ -30,8 +30,15 @@ module.exports.getLatestTemperature = async function (deviceId) {
     LIMIT 1
   `);
 
-  const result = await stmt.get(deviceId);
-  return result ? result.value : null;
+  return new Promise((resolve, reject) => {
+    stmt.get(deviceId, (err, row) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(row.value);
+      }
+    });
+  });
 };
 
 module.exports.getLastTemperatures = function () {
@@ -171,8 +178,7 @@ module.exports.getAllTemperatures = function (deviceId) {
       }
     });
   });
-
-}
+};
 
 module.exports.addTemperatures = function (values, deviceId) {
   const stmt = db.prepare(
@@ -191,7 +197,9 @@ module.exports.deleteTemperatures = function (deviceId) {
 };
 
 module.exports.deleteTemperatureByTime = function (deviceId, time) {
-  const stmt = db.prepare(`DELETE FROM temperatures WHERE deviceId = ? AND time = ?`);
+  const stmt = db.prepare(
+    `DELETE FROM temperatures WHERE deviceId = ? AND time = ?`
+  );
 
   stmt.run(deviceId, time);
 };
