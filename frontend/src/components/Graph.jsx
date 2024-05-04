@@ -1,7 +1,8 @@
 import { LineChart } from "@mui/x-charts/LineChart";
 import { formatRelative } from "date-fns";
 
-function Graph({ name, data, realTime }) {
+function Graph({ name, data, realTime, alert }) {
+  console.log(alert);
   return (
     <div className="flex justify-center pt-10 pb-2 flex-col">
       <h1 className="row-span-1 text-center pt-3 font-bold">
@@ -19,7 +20,6 @@ function Graph({ name, data, realTime }) {
             xAxis={[
               {
                 scaleType: "time",
-                // data: data.slice(-24).map((item) => new Date(item.time)),
                 data: data.map((item) => new Date(item.time)),
               },
             ]}
@@ -30,9 +30,22 @@ function Graph({ name, data, realTime }) {
             ]}
             series={[
               {
-                // data: data.slice(-24).map((item) => item.value),
                 data: data.map((item) => item.value),
               },
+              alert
+                ? {
+                    data: data.map((i) => alert.lower_limit),
+                    color: "red",
+                    showMark: false,
+                  }
+                : { data: [] },
+              alert
+                ? {
+                    data: data.map((i) => alert.upper_limit),
+                    color: "red",
+                    showMark: false,
+                  }
+                : { data: [] },
             ]}
             width={500}
             height={300}

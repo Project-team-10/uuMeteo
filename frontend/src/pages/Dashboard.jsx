@@ -28,6 +28,7 @@ export default function Dashboard() {
   const [isAlertSettingsVisible, setIsAlertSettingsVisible] = useState(false);
   const [isAlertsModalVisible, setIsAlertsModalVisible] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState(null);
+  const [alerts, setAlerts] = useState([]);
   const [triggeredAlerts, setTriggeredAlerts] = useState([]);
   const [triggeredAlertsCount, setTriggeredAlertsCount] = useState(0);
 
@@ -36,6 +37,7 @@ export default function Dashboard() {
   const fetchTriggeredAlerts = async () => {
     try {
       const alerts = await fetchAlerts();
+      setAlerts(alerts);
 
       // Filter the alerts to only include the triggered ones
       const triggeredAlerts = alerts.filter(
@@ -202,12 +204,13 @@ export default function Dashboard() {
               realTime={realTimeTemperatures.find(
                 (t) => t.deviceId === device.deviceId
               )}
+              alert={alerts.find((a) => a.device_id === device.deviceId)}
             />
             <div className="text-sm">
               <div className="flex justify-center mb-1">
                 <span>Granularity: </span>
                 <select
-                className="ml-1"
+                  className="ml-1"
                   value={deviceTimeFrames[device.deviceId]}
                   onChange={(e) => {
                     const value = e.target.value;
