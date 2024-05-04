@@ -13,12 +13,12 @@ function Graph({ name, data, realTime, alert }) {
       series.push(
         {
           data: data.map((i) => alert.lower_limit),
-          color: "red",
+          color: "#FFCCCC",
           showMark: false,
         },
         {
           data: data.map((i) => alert.upper_limit),
-          color: "red",
+          color: "#FFCCCC",
           showMark: false,
         }
       );
