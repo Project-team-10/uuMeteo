@@ -26,7 +26,7 @@ export async function fetchDevices() {
   return devices;
 }
 
-export async function fetchTemperatures(deviceId, timeFrame) {
+export async function fetchHistoricalTemperatures(deviceId, timeFrame) {
   const res = await fetch(
     `${BE_URL}/temperatures/${deviceId}?time=${timeFrame}&from=${new Date("2024-04-01").toISOString()}&to=${new Date().toISOString()}`,
     {
@@ -41,6 +41,23 @@ export async function fetchTemperatures(deviceId, timeFrame) {
   const temperatures = await res.json();
   return temperatures;
 }
+
+export async function fetchRealTimeTemperatures() {
+  const res = await fetch(
+    `${BE_URL}/temperatures/realtime`,
+    {
+      credentials: "include",
+    }
+  );
+
+  if (!res.ok) {
+    return null;
+  }
+
+  const temperatures = await res.json();
+  return temperatures;
+}
+
 
 export async function logout() {
   const res = await fetch(`${BE_URL}/logout`, {

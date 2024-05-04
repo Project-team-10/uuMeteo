@@ -1,21 +1,25 @@
 import React, { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import AlertSettings from "../components/AlertSettings";
 import AlertsModal from "../components/AlertsModal";
 import Graph from "../components/Graph";
 import { MeContext } from "../contexts/MeContext";
 import { useInterval } from "../hooks/useInterval";
-import { useNavigate } from "react-router-dom";
 import {
   fetchAlerts,
   fetchDevices,
-  fetchTemperatures,
+  fetchHistoricalTemperatures,
+  fetchRealTimeTemperatures,
   logout,
 } from "../services/apis";
 
-const UPDATE_INTERVAL = 5000;
+const HISTORICAL_TEMPERATURES_UPDATE_INTERVAL = 60000;
+const REAL_TIME_TEMPERATURES_UPDATE_INTERVAL = 5000;
+const ALERTS_UPDATE_INTERVAL = 60000;
 
 export default function Dashboard() {
-  const [temperatures, setTemperatures] = useState({});
+  const [historicalTemperatures, setHistoricalTemperatures] = useState({});
+  const [realTimeTemperatures, setRealTimeTemperatures] = useState([]);
   const [devices, setDevices] = useState([]);
   const [deviceTimeFrames, setDeviceTimeFrames] = useState({});
   const [isAlertSettingsVisible, setIsAlertSettingsVisible] = useState(false);
@@ -46,10 +50,10 @@ export default function Dashboard() {
     const devices = await fetchDevices();
     setDevices(devices);
 
-    const fetchTemperatureData = async () => {
+    const fetchHistoricalTemperatureData = async () => {
       const temperatureData = await Promise.all(
         devices.map(async (device) => {
-          const t = await fetchTemperatures(
+          const t = await fetchHistoricalTemperatures(
             device.deviceId,
             deviceTimeFrames[device.deviceId] || "1h"
           );
@@ -64,19 +68,32 @@ export default function Dashboard() {
         {}
       );
 
-      setTemperatures(temperatures);
+      setHistoricalTemperatures(temperatures);
     };
 
-    fetchTemperatureData();
+    fetchHistoricalTemperatureData();
   };
 
-  useInterval(fetchTriggeredAlerts, UPDATE_INTERVAL);
-  useInterval(fetchTemperaturesAndDevices, UPDATE_INTERVAL);
+  const fetchRealTimeTemperatureData = async () => {
+    const realTimeTemperatureData = await fetchRealTimeTemperatures();
+    setRealTimeTemperatures(realTimeTemperatureData);
+  };
+
+  useInterval(fetchTriggeredAlerts, ALERTS_UPDATE_INTERVAL);
+  useInterval(
+    fetchTemperaturesAndDevices,
+    HISTORICAL_TEMPERATURES_UPDATE_INTERVAL
+  );
+  useInterval(
+    fetchRealTimeTemperatureData,
+    REAL_TIME_TEMPERATURES_UPDATE_INTERVAL
+  );
 
   useEffect(() => {
     (async () => {
       await fetchTemperaturesAndDevices();
       await fetchTriggeredAlerts();
+      await fetchRealTimeTemperatureData();
     })();
   }, []);
 
@@ -155,10 +172,16 @@ export default function Dashboard() {
         </button>
       </div>
       <h1 className="text-3xl font-bold p-4 flex justify-center">uuMeteo</h1>
-      <div className="grid row-auto grid-cols-2">
+      <div className="grid row-auto lg:grid-cols-2 grid-cols-1">
         {devices.map((device) => (
           <div key={device.deviceId}>
-            <Graph name={device.name} data={temperatures[device.deviceId]} />
+            <Graph
+              name={device.name}
+              data={historicalTemperatures[device.deviceId]}
+              realTime={realTimeTemperatures.find(
+                (t) => t.deviceId === device.deviceId
+              )}
+            />
             <div className="flex justify-center">
               <select
                 value={deviceTimeFrames[device.deviceId]}

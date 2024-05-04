@@ -1,15 +1,20 @@
-import React, { useEffect, useState } from "react";
 import { LineChart } from "@mui/x-charts/LineChart";
+import { formatRelative } from "date-fns";
 
-function Graph({ name, data }) {
+function Graph({ name, data, realTime }) {
   return (
-    <div className="grid grid-rows-7 justify-center pt-20 pb-5 col-span-1">
+    <div className="flex justify-center pt-10 pb-5 flex-col">
       <h1 className="row-span-1 text-center pt-3 font-bold">
-        {name}: {data?.[data.length - 1]?.value?.toFixed(2)} °C
+        {name}: {realTime?.value.toFixed(2)} °C
       </h1>
+      <span className="text-xs text-center">
+        {realTime?.time
+          ? formatRelative(new Date(realTime?.time), new Date())
+          : "N/A"}
+      </span>
 
       {data ? (
-        <div className="row-span-6">
+        <div className="row-span-6 flex justify-center">
           <LineChart
             xAxis={[
               {
