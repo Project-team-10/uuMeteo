@@ -36,7 +36,7 @@ module.exports.getLatestTemperature = async function (deviceId) {
 
 module.exports.getLastTemperatures = function () {
   const stmt =
-    db.prepare(`SELECT t.deviceId as deviceId, MAX(t.value) AS value, t.time AS time
+    db.prepare(`SELECT t.deviceId as deviceId, t.value AS value, MAX(t.time) AS time
   FROM temperatures t
   GROUP BY t.deviceId
   `);
