@@ -189,3 +189,9 @@ module.exports.deleteTemperatures = function (deviceId) {
 
   stmt.run(deviceId);
 };
+
+module.exports.deleteTemperatureByTime = function (deviceId, time) {
+  const stmt = db.prepare(`DELETE FROM temperatures WHERE deviceId = ? AND time = ? LIMIT 1`);
+
+  stmt.run(deviceId, time);
+};

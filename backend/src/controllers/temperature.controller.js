@@ -63,6 +63,22 @@ router.get(
   }
 );
 
+router.delete(
+  "/:deviceId/debug",
+  authMiddleware,
+  validateRequest({
+    params: z.object({
+      deviceId: z.string().uuid(),
+      time: z.string(),
+    }),
+  }),
+  async (req, res) => {
+    return res.json(
+      await getAllTemperatures(req.params.deviceId, req.params.time)
+    );
+  }
+);
+
 router.post(
   "/",
   validateRequest({
