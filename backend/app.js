@@ -15,7 +15,7 @@ app.use(
 ); // Enable CORS for all routes
 
 // use JSONs
-app.use(express.json({limit: '50mb'}));
+app.use(express.json({ limit: "50mb" }));
 
 // for url encoded content type
 app.use(express.urlencoded({ extended: true }));
@@ -26,14 +26,21 @@ var SQLiteStore = require("connect-sqlite3")(session);
 var passport = require("passport");
 const { registerUser } = require("./src/services/auth.service");
 const { findUserByUsername } = require("./src/repositories/auth.repository");
-app.set("trust proxy", 1); // trust first proxy
+
+if (process.env.NODE_ENV !== "local") {
+  app.set("trust proxy", 1); // trust first proxy
+}
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     store: new SQLiteStore({ db: "sessions.db", dir: "./db" }),
-    cookie: { sameSite: "none", secure: true },
+    cookie:
+      process.env.NODE_ENV !== "local"
+        ? { sameSite: "none", secure: true }
+        : {},
   })
 );
 app.use(passport.authenticate("session"));
@@ -45,12 +52,13 @@ app.use("/", require("./src/controllers/auth.controller"));
 app.use("/alerts", require("./src/controllers/alerts.controller"));
 
 // Start the server
-app.listen(process.env.PORT, () => {
+app.listen(process.env.PORT, async () => {
   console.log(`Server is running on port ${process.env.PORT}`);
 
-  if (findUserByUsername(process.env.USERNAME)) {
+  if (await findUserByUsername(process.env.USERNAME)) {
     console.log("Default user already exists.");
   } else {
+    console.log("Registered default user.");
     registerUser(process.env.USERNAME, process.env.PASSWORD);
   }
 

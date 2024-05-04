@@ -3,7 +3,7 @@ import { formatRelative } from "date-fns";
 
 function Graph({ name, data, realTime }) {
   return (
-    <div className="flex justify-center pt-10 pb-5 flex-col">
+    <div className="flex justify-center pt-10 pb-2 flex-col">
       <h1 className="row-span-1 text-center pt-3 font-bold">
         {name}: {realTime?.value.toFixed(2)} °C
       </h1>
@@ -19,7 +19,8 @@ function Graph({ name, data, realTime }) {
             xAxis={[
               {
                 scaleType: "time",
-                data: data.slice(-24).map((item) => new Date(item.time)),
+                // data: data.slice(-24).map((item) => new Date(item.time)),
+                data: data.map((item) => new Date(item.time)),
               },
             ]}
             yAxis={[
@@ -29,7 +30,8 @@ function Graph({ name, data, realTime }) {
             ]}
             series={[
               {
-                data: data.slice(-24).map((item) => item.value),
+                // data: data.slice(-24).map((item) => item.value),
+                data: data.map((item) => item.value),
               },
             ]}
             width={500}

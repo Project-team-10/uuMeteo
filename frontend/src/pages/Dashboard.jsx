@@ -1,3 +1,4 @@
+import { addDays, subDays } from "date-fns";
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AlertSettings from "../components/AlertSettings";
@@ -22,6 +23,8 @@ export default function Dashboard() {
   const [realTimeTemperatures, setRealTimeTemperatures] = useState([]);
   const [devices, setDevices] = useState([]);
   const [deviceTimeFrames, setDeviceTimeFrames] = useState({});
+  const [deviceIntervals, setDeviceIntervals] = useState({});
+
   const [isAlertSettingsVisible, setIsAlertSettingsVisible] = useState(false);
   const [isAlertsModalVisible, setIsAlertsModalVisible] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState(null);
@@ -50,12 +53,30 @@ export default function Dashboard() {
     const devices = await fetchDevices();
     setDevices(devices);
 
+    for (const device of devices) {
+      if (!deviceIntervals[device.deviceId]) {
+        setDeviceIntervals((prevState) => ({
+          ...prevState,
+          [device.deviceId]: {
+            from: subDays(new Date(), 2).toISOString().split("T")[0],
+            to: addDays(new Date(), 1).toISOString().split("T")[0],
+          },
+        }));
+      }
+    }
+
     const fetchHistoricalTemperatureData = async () => {
       const temperatureData = await Promise.all(
         devices.map(async (device) => {
           const t = await fetchHistoricalTemperatures(
             device.deviceId,
-            deviceTimeFrames[device.deviceId] || "1h"
+            deviceTimeFrames[device.deviceId] || "1h",
+            deviceIntervals[device.deviceId]?.["from"]
+              ? new Date(deviceIntervals[device.deviceId]?.["from"])
+              : new Date("2021-01-01"),
+            deviceIntervals[device.deviceId]?.["to"]
+              ? new Date(deviceIntervals[device.deviceId]?.["to"])
+              : new Date()
           );
           return { deviceId: device.deviceId, temperatures: t };
         })
@@ -101,7 +122,7 @@ export default function Dashboard() {
     (async () => {
       await fetchTemperaturesAndDevices();
     })();
-  }, [deviceTimeFrames]);
+  }, [deviceTimeFrames, deviceIntervals]);
 
   const { refetch } = useContext(MeContext);
 
@@ -182,20 +203,60 @@ export default function Dashboard() {
                 (t) => t.deviceId === device.deviceId
               )}
             />
-            <div className="flex justify-center">
-              <select
-                value={deviceTimeFrames[device.deviceId]}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  setDeviceTimeFrames((prevState) => ({
-                    ...prevState,
-                    [device.deviceId]: value,
-                  }));
-                }}
-              >
-                <option value="1h">1 hour</option>
-                <option value="1d">1 day</option>
-              </select>
+            <div className="text-sm">
+              <div className="flex justify-center mb-1">
+                <span>Granularity: </span>
+                <select
+                className="ml-1"
+                  value={deviceTimeFrames[device.deviceId]}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setDeviceTimeFrames((prevState) => ({
+                      ...prevState,
+                      [device.deviceId]: value,
+                    }));
+                  }}
+                >
+                  <option value="1h">1 hour</option>
+                  <option value="1d">1 day</option>
+                </select>
+              </div>
+              <div className="flex justify-center">
+                <span>From: </span>
+                <input
+                  type="date"
+                  name="from"
+                  id="from"
+                  value={deviceIntervals[device.deviceId]?.["from"]}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setDeviceIntervals((prevState) => ({
+                      ...prevState,
+                      [device.deviceId]: {
+                        ...prevState[device.deviceId],
+                        from: value,
+                      },
+                    }));
+                  }}
+                />
+                <span className="ml-2">To: </span>
+                <input
+                  type="date"
+                  name="to"
+                  id="to"
+                  value={deviceIntervals[device.deviceId]?.["to"]}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setDeviceIntervals((prevState) => ({
+                      ...prevState,
+                      [device.deviceId]: {
+                        ...prevState[device.deviceId],
+                        to: value,
+                      },
+                    }));
+                  }}
+                />
+              </div>
             </div>
           </div>
         ))}
