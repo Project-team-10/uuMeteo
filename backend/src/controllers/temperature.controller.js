@@ -71,12 +71,12 @@ router.delete(
     params: z.object({
       deviceId: z.string().uuid(),
     }),
-    query: z.object({
+    body: z.object({
       time: z.string(),
     }),
   }),
   async (req, res) => {
-    await deleteTemperatureByTime(req.params.deviceId, req.query.time);
+    await deleteTemperatureByTime(req.params.deviceId, req.body.time);
     return res.sendStatus(200);
   }
 );
