@@ -69,12 +69,14 @@ router.delete(
   validateRequest({
     params: z.object({
       deviceId: z.string().uuid(),
+    }),
+    query: z.object({
       time: z.string(),
     }),
   }),
   async (req, res) => {
     return res.json(
-      await getAllTemperatures(req.params.deviceId, req.params.time)
+      await getAllTemperatures(req.params.deviceId, req.query.time)
     );
   }
 );
