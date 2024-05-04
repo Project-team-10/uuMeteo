@@ -1,6 +1,8 @@
 import { addDays, subDays } from "date-fns";
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+// import siren from "../assets/siren.mp3";
+import Sound from "react-sound";
 import AlertSettings from "../components/AlertSettings";
 import AlertsModal from "../components/AlertsModal";
 import Graph from "../components/Graph";
@@ -142,6 +144,12 @@ export default function Dashboard() {
 
   return (
     <main className="py-3 px-5">
+      <Sound
+        url="siren.mp3"
+        playStatus={
+          triggeredAlerts.length ? Sound.status.PLAYING : Sound.status.STOPPED
+        }
+      />
       <div className="flex justify-end">
         <button
           className="border p-1 mr-2"
