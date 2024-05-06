@@ -26,13 +26,10 @@ router.post(
   }
 );
 
-router.delete(
-  "/:id",
-  validateRequest({ params: z.object({ id: z.string() }) }),
-  (req, res) => {
-    const { id } = req.params;
-    return res.json(deleteDevice(id));
-  }
-);
+//delete router
+router.delete("/:deviceId", async (req, res) => {
+  const { deviceId } = req.params;
+  return res.json(deleteDevice(deviceId));
+});
 
 module.exports = router;

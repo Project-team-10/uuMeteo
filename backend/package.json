@@ -7,7 +7,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "dev": "node --env-file=.env --watch app.js",
+    "dev": "node --env-file=.env app.js",
     "debug": "node --env-file=.env --inspect --watch app.js",
     "prod": "node --env-file=.env app.js",
     "test": "echo \"Error: no test specified\" && exit 1",

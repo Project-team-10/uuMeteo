@@ -163,7 +163,7 @@ export default function Dashboard() {
           }}
           onClick={handleOpenDeviceRegistration}
         >
-          Device Registration
+          Devices
         </button>
         <button
           className="border p-1 mr-2 relative"

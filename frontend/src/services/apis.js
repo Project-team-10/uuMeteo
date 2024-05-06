@@ -26,7 +26,12 @@ export async function fetchDevices() {
   return devices;
 }
 
-export async function fetchHistoricalTemperatures(deviceId, timeFrame, from, to) {
+export async function fetchHistoricalTemperatures(
+  deviceId,
+  timeFrame,
+  from,
+  to
+) {
   const res = await fetch(
     `${BE_URL}/temperatures/${deviceId}?time=${timeFrame}&from=${from.toISOString()}&to=${to.toISOString()}`,
     {
@@ -43,12 +48,9 @@ export async function fetchHistoricalTemperatures(deviceId, timeFrame, from, to)
 }
 
 export async function fetchRealTimeTemperatures() {
-  const res = await fetch(
-    `${BE_URL}/temperatures/realtime`,
-    {
-      credentials: "include",
-    }
-  );
+  const res = await fetch(`${BE_URL}/temperatures/realtime`, {
+    credentials: "include",
+  });
 
   if (!res.ok) {
     return null;
@@ -57,7 +59,6 @@ export async function fetchRealTimeTemperatures() {
   const temperatures = await res.json();
   return temperatures;
 }
-
 
 export async function logout() {
   const res = await fetch(`${BE_URL}/logout`, {
@@ -103,7 +104,7 @@ export async function createAlert(deviceId, upperLimit, lowerLimit) {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('Error creating alert:', error);
+    console.error("Error creating alert:", error);
     throw error;
   }
 }
@@ -133,5 +134,43 @@ export async function deleteAlert(alertId) {
 
   if (!res.ok) {
     return null;
+  }
+}
+
+export async function createDevice(deviceName) {
+  const response = await fetch(`${BE_URL}/devices`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({ name: deviceName }),
+    credentials: "include",
+  });
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  } else {
+    return response.json();
+  }
+}
+
+export async function deleteDevice(deviceId) {
+  const res = await fetch(`${BE_URL}/devices/${deviceId}`, {
+    method: "DELETE",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error(`HTTP error! status: ${res.status}`);
+  }
+
+  try {
+    return await res.json();
+  } catch (err) {
+    console.error("Error parsing JSON:", err);
+    return res.statusText;
   }
 }
