@@ -48,6 +48,7 @@ export default function RegisterDeviceModal({
   return (
     <>
       <Dialog
+        sx={{ "& .MuiPaper-root": { borderRadius: "10px" } }}
         open={open}
         onClose={() => {
           setDeviceName("");
@@ -117,6 +118,7 @@ export default function RegisterDeviceModal({
               fontSize: "1rem",
               borderRadius: "12px",
               mr: 2,
+              mb: 1,
               "&:hover": { backgroundColor: "rgba(3,29,255,1)" },
             }}
             onClick={handleAddDevice}
