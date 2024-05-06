@@ -29,13 +29,13 @@ const CustomHeader = styled("h1")(({ theme }) => ({
 export default function DeviceRegistration() {
   const [modalOpen, setModalOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [currentDevice, setCurrentDevice] = useState(null); // Define currentDevice state
+  const [currentDevice, setCurrentDevice] = useState(null);
   const [devices, setDevices] = useState([]);
   const navigate = useNavigate();
 
   const loadDevices = async () => {
     const fetchedDevices = await fetchDevices();
-    console.log("Fetched devices:", fetchedDevices); // Log to see what you're getting back
+    console.log("Fetched devices:", fetchedDevices);
     if (fetchedDevices) {
       setDevices(fetchedDevices);
     }
@@ -56,7 +56,7 @@ export default function DeviceRegistration() {
     if (currentDevice && currentDevice.deviceId) {
       try {
         const deletedDevice = await deleteDevice(currentDevice.deviceId);
-        console.log("Deleted device response:", deletedDevice);
+        console.log("Deleted device response:");
         setDevices(
           devices.filter((device) => device.deviceId !== currentDevice.deviceId)
         );
@@ -120,7 +120,14 @@ export default function DeviceRegistration() {
           Add Device
         </Button>
       </div>
-      <RegisterDeviceModal open={modalOpen} handleClose={handleCloseModal} />
+      <RegisterDeviceModal
+        open={modalOpen}
+        handleClose={handleCloseModal}
+        onDeviceAdded={(newDevice) =>
+          setDevices((prevDevices) => [...prevDevices, newDevice])
+        }
+      />
+
       <ConfirmDelete
         open={confirmOpen}
         onClose={handleCloseConfirm}

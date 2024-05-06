@@ -12,7 +12,11 @@ import {
 } from "@mui/material";
 import { createDevice } from "../services/apis";
 
-export default function RegisterDeviceModal({ open, handleClose }) {
+export default function RegisterDeviceModal({
+  open,
+  handleClose,
+  onDeviceAdded,
+}) {
   const [deviceName, setDeviceName] = useState("");
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -27,22 +31,29 @@ export default function RegisterDeviceModal({ open, handleClose }) {
 
   const handleAddDevice = async () => {
     try {
-      await createDevice(deviceName);
+      const newDevice = await createDevice(deviceName);
+      onDeviceAdded(newDevice); // Call the callback with the new device
       setSnackbarMessage("Device added successfully!");
       setSnackbarSeverity("success");
+      handleClose(); // Close the modal after successful addition
     } catch (error) {
       setSnackbarMessage("Failed to add device: " + error.message);
       setSnackbarSeverity("error");
     } finally {
       setSnackbarOpen(true);
-      setDeviceName("");
-      handleClose();
+      setDeviceName(""); // Clear the input field
     }
   };
 
   return (
     <>
-      <Dialog open={open} onClose={handleClose}>
+      <Dialog
+        open={open}
+        onClose={() => {
+          setDeviceName(""); // Also clear on close
+          handleClose();
+        }}
+      >
         <DialogTitle>Register New Device</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -62,7 +73,13 @@ export default function RegisterDeviceModal({ open, handleClose }) {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="primary">
+          <Button
+            onClick={() => {
+              setDeviceName(""); // Clear the field on cancel
+              handleClose();
+            }}
+            color="primary"
+          >
             Cancel
           </Button>
           <Button onClick={handleAddDevice} color="primary">

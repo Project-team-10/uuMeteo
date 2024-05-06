@@ -149,9 +149,8 @@ export async function createDevice(deviceName) {
   });
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
-  } else {
-    return response.json();
   }
+  return await response.json();
 }
 
 export async function deleteDevice(deviceId) {
@@ -168,7 +167,8 @@ export async function deleteDevice(deviceId) {
   }
 
   try {
-    return await res.json();
+    const data = await res.json();
+    return data;
   } catch (err) {
     console.error("Error parsing JSON:", err);
     return res.statusText;
