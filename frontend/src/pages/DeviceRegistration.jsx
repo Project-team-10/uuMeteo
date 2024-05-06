@@ -110,6 +110,7 @@ export default function DeviceRegistration() {
             backgroundColor: "rgba(37,99,235,1)",
             color: "white",
             textTransform: "none",
+
             fontWeight: "bold",
             fontSize: "0.875rem",
             padding: "6px 12px",
