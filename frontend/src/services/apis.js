@@ -147,10 +147,13 @@ export async function createDevice(deviceName) {
     body: JSON.stringify({ name: deviceName }),
     credentials: "include",
   });
+
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
-  return await response.json();
+
+  const newDevice = await response.json();
+  return newDevice;
 }
 
 export async function deleteDevice(deviceId) {
@@ -166,11 +169,15 @@ export async function deleteDevice(deviceId) {
     throw new Error(`HTTP error! status: ${res.status}`);
   }
 
+  if (res.status === 204 || res.headers.get("content-length") === "0") {
+    return null;
+  }
+
   try {
     const data = await res.json();
     return data;
   } catch (err) {
     console.error("Error parsing JSON:", err);
-    return res.statusText;
+    throw err;
   }
 }

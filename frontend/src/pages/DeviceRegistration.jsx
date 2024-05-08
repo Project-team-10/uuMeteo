@@ -35,7 +35,6 @@ export default function DeviceRegistration() {
 
   const loadDevices = async () => {
     const fetchedDevices = await fetchDevices();
-    console.log("Fetched devices:", fetchedDevices);
     if (fetchedDevices) {
       setDevices(fetchedDevices);
     }
@@ -46,17 +45,17 @@ export default function DeviceRegistration() {
   }, []);
 
   const handleOpenConfirm = (device) => {
-    console.log("Device object on open confirm:", device);
     setCurrentDevice(device);
     setConfirmOpen(true);
   };
 
   const handleDeleteDevice = async () => {
-    console.log("Current device object on delete:", currentDevice);
     if (currentDevice && currentDevice.deviceId) {
       try {
         const deletedDevice = await deleteDevice(currentDevice.deviceId);
-        console.log("Deleted device response:");
+        if (deletedDevice) {
+          console.log("Device deleted:", deletedDevice);
+        }
         setDevices(
           devices.filter((device) => device.deviceId !== currentDevice.deviceId)
         );
@@ -124,9 +123,10 @@ export default function DeviceRegistration() {
       <RegisterDeviceModal
         open={modalOpen}
         handleClose={handleCloseModal}
-        onDeviceAdded={(newDevice) =>
-          setDevices((prevDevices) => [...prevDevices, newDevice])
-        }
+        onDeviceAdded={(newDevice) => {
+          setDevices((prevDevices) => [...prevDevices, newDevice]);
+          loadDevices();
+        }}
       />
 
       <ConfirmDelete
@@ -164,10 +164,8 @@ export default function DeviceRegistration() {
           </TableHead>
           <TableBody>
             {devices.map((device) => {
-              console.log("Device ID check at rendering:", device.id);
-
               return (
-                <TableRow key={`${device.name}-${device.secretKey}`}>
+                <TableRow key={`${device.name}`}>
                   <TableCell component="th" scope="row" className="font-medium">
                     {device.name}
                   </TableCell>

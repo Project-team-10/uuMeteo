@@ -65,7 +65,7 @@ export default function RegisterDeviceModal({
           <TextField
             sx={{
               "& .MuiOutlinedInput-root": {
-                borderRadius: "16px", // Rounded borders
+                borderRadius: "16px",
                 "& fieldset": {
                   borderColor: "rgba(0, 0, 0, 1)",
                 },

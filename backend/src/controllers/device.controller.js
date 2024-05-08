@@ -17,19 +17,23 @@ router.get("/", async (req, res) => {
   return res.json(devices);
 });
 
+// device.routes.js
 router.post(
   "/",
   validateRequest({ body: z.object({ name: z.string() }) }),
   (req, res) => {
     const device = req.body;
-    return res.json(registerDevice(device.name));
+    const newDevice = registerDevice(device.name);
+    return res.json(newDevice);
   }
 );
-
 //delete router
-router.delete("/:deviceId", async (req, res) => {
-  const { deviceId } = req.params;
-  return res.json(deleteDevice(deviceId));
-});
-
+router.delete(
+  "/:deviceId",
+  validateRequest({ params: z.object({ deviceId: z.string() }) }),
+  (req, res) => {
+    const { id } = req.params;
+    return res.json(deleteDevice(id));
+  }
+);
 module.exports = router;
