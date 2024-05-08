@@ -86,8 +86,9 @@ export default function DeviceRegistration() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center justify-between">
+    <div className="container mx-auto py-4 ">
+      <CustomHeader sx={{ textAlign: "center" }}>Devices</CustomHeader>
+      <div className="my-4 flex items-center justify-between">
         <IconButton
           onClick={handleBackToDashboard}
           sx={{
@@ -101,7 +102,7 @@ export default function DeviceRegistration() {
         >
           <ArrowBackIcon />
         </IconButton>
-        <CustomHeader>Devices</CustomHeader>
+
         <Button
           variant="contained"
           startIcon={<AddIcon />}
@@ -137,9 +138,9 @@ export default function DeviceRegistration() {
       />
       <TableContainer
         sx={{
-          backgroundColor: "rgba(37,99,235,0.15)",
+          backgroundColor: "rgba(37,99,235,0.1)",
           "& .MuiTableCell-root": {
-            borderColor: "rgba(0,0,0,0.5)",
+            borderColor: "rgba(0,0,0,0.3)",
           },
         }}
         component={Paper}
