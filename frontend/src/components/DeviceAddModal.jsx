@@ -98,6 +98,7 @@ export default function RegisterDeviceModal({
               backgroundColor: "rgba(255,255,255,1)",
               color: "black",
               fontSize: "1rem",
+              mb: 1,
               "&:hover": { backgroundColor: "rgba(255,255,255,0.8)" },
             }}
             onClick={() => {

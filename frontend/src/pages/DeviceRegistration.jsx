@@ -15,7 +15,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AddIcon from "@mui/icons-material/Add";
 import { styled } from "@mui/material/styles";
 import RegisterDeviceModal from "../components/DeviceAddModal";
-import ConfirmDelete from "../components/ConfirmDelete"; // Ensure this component is correctly imported
+import ConfirmDelete from "../components/ConfirmDelete";
 import { useNavigate } from "react-router-dom";
 import { fetchDevices, deleteDevice } from "../services/apis"; // Ensure deleteDevice is imported
 

@@ -9,16 +9,48 @@ import {
 
 function ConfirmDialog({ open, onClose, onConfirm, message }) {
   return (
-    <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Confirm Action</DialogTitle>
+    <Dialog
+      sx={{ "& .MuiPaper-root": { borderRadius: "10px" } }}
+      open={open}
+      onClose={onClose}
+    >
+      <DialogTitle sx={{ fontWeight: "bold" }}>Confirm Action</DialogTitle>
       <DialogContent>
         <DialogContentText>{message}</DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="primary">
+        <Button
+          sx={{
+            backgroundColor: "red",
+            textTransform: "none",
+            fontWeight: "bold",
+            backgroundColor: "rgba(255,255,255,1)",
+            color: "black",
+            fontSize: "1rem",
+            mb: 1,
+            "&:hover": { backgroundColor: "rgba(255,255,255,0.8)" },
+          }}
+          onClick={onClose}
+          color="primary"
+        >
           Cancel
         </Button>
-        <Button onClick={onConfirm} color="secondary">
+        <Button
+          sx={{
+            backgroundColor: "rgba(244,67,54,1)",
+            textTransform: "none",
+            color: "white",
+            fontWeight: "bold",
+            minWidth: "140px",
+            fontSize: "1rem",
+            borderRadius: "12px",
+            mr: 2,
+            mb: 1,
+            "&:hover": { backgroundColor: "rgba(255,6,20,1)" },
+          }}
+          onClick={onConfirm}
+          color="secondary"
+        >
           Delete
         </Button>
       </DialogActions>
