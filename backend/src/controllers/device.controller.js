@@ -32,8 +32,8 @@ router.delete(
   "/:deviceId",
   validateRequest({ params: z.object({ deviceId: z.string() }) }),
   (req, res) => {
-    const { id } = req.params;
-    return res.json(deleteDevice(id));
+    const { deviceId } = req.params;
+    return res.json(deleteDevice(deviceId));
   }
 );
 module.exports = router;
