@@ -30,8 +30,14 @@ module.exports.registerDevice = function (name) {
 };
 
 module.exports.deleteDevice = function (deviceId) {
-  const stmt = db.prepare(`DELETE FROM devices WHERE deviceId = ?`);
-  stmt.run(deviceId);
+  const deleteFromTemperatures = db.prepare(
+    `DELETE FROM temperatures WHERE deviceId = ?`
+  );
+  deleteFromTemperatures.run(deviceId);
+  const deleteFromAlerts = db.prepare(`DELETE FROM alerts WHERE device_id = ?`);
+  deleteFromAlerts.run(deviceId);
+  const deleteDevice = db.prepare(`DELETE FROM devices WHERE deviceId = ?`);
+  deleteDevice.run(deviceId);
 };
 
 module.exports.getDeviceBySecretKey = function (secretKey) {
