@@ -1,1 +1,644 @@
-[{"id":"2c41a2bd.aa36ae","type":"tab","label":"Flow 1","disabled":false},{"id":"a59905fa2a954e1f","type":"mqtt in","z":"2c41a2bd.aa36ae","name":"","topic":"node/skeleton:0/thermometer/0:1/temperature","qos":"2","datatype":"auto-detect","broker":"29fba84a.b2af58","nl":false,"rap":true,"rh":0,"inputs":0,"x":950,"y":1020,"wires":[["7e075285324d7f41","8bba6898504a6e23","318c5f20edf6f6e3"]]},{"id":"7e075285324d7f41","type":"function","z":"2c41a2bd.aa36ae","name":"function 1","func":"var time = new Date();\n\n// Get day, month, year, hour, and minutes components\nvar day = time.getDate();\nvar month = time.toLocaleString('default', { month: 'short' }); // Get month abbreviation (e.g., \"May\")\nvar year = time.getFullYear();\nvar hour = time.getHours();\nvar minutes = time.getMinutes();\n\n// Convert single-digit minutes to double-digit format\nvar formattedMinutes = minutes < 10 ? '0' + minutes : minutes;\n\n// Construct the formatted time string\nvar formattedTime = day + \" \" + month + \" \" + year + \" \" + hour + \":\" + formattedMinutes;\n\nmsg.payload = {\n    'temperature': +msg.payload,\n    \"time\": formattedTime,\n    \"secretKey\": \"e559fbeaac05a065f10c814b018e35f32fabaef233f97735ed608438dc1b1f13\",\n};\nreturn msg;\n","outputs":1,"noerr":0,"initialize":"","finalize":"","libs":[],"x":1280,"y":1020,"wires":[["09f61d3a5514e2f8","a46869bf5dbe5489"]]},{"id":"a46869bf5dbe5489","type":"http request","z":"2c41a2bd.aa36ae","name":"POST Temp","method":"POST","ret":"txt","paytoqs":"ignore","url":"http://127.0.0.1:3000/api/temperature","tls":"","persist":false,"proxy":"","insecureHTTPParser":false,"authType":"","senderr":false,"headers":[{"keyType":"Content-Type","keyValue":"","valueType":"application/json","valueValue":""}],"x":1490,"y":1020,"wires":[["643549a32bc7c8a9"]]},{"id":"746906de92889fd7","type":"mqtt in","z":"2c41a2bd.aa36ae","name":"","topic":"node/skeleton:0/push-button/-/event-count","qos":"2","datatype":"auto-detect","broker":"29fba84a.b2af58","nl":false,"rap":true,"rh":0,"inputs":0,"x":1090,"y":1300,"wires":[["e3b568c28c184dc8"]]},{"id":"e3b568c28c184dc8","type":"http request","z":"2c41a2bd.aa36ae","name":"DELETE DB","method":"DELETE","ret":"txt","paytoqs":"ignore","url":"http://127.0.0.1:3000/api/deleteDB","tls":"","persist":false,"proxy":"","insecureHTTPParser":false,"authType":"","senderr":false,"headers":[],"x":1430,"y":1300,"wires":[["458331d309aa3313"]]},{"id":"7e56fbe278a04e4e","type":"file","z":"2c41a2bd.aa36ae","name":"CVS FILE","filename":"/Users/temperatures/temperatures.csv","filenameType":"str","appendNewline":false,"createDir":true,"overwriteFile":"false","encoding":"none","x":1640,"y":880,"wires":[["3fa71758f54a2064"]]},{"id":"09f61d3a5514e2f8","type":"csv","z":"2c41a2bd.aa36ae","name":"WRITE CSV","sep":",","hdrin":"","hdrout":"none","multi":"one","ret":"\\n","temp":"temperature, secretKey, time","skip":"0","strings":true,"include_empty_strings":"","include_null_values":"","x":1470,"y":880,"wires":[["7e56fbe278a04e4e"]]},{"id":"f8c14957fcb45565","type":"file in","z":"2c41a2bd.aa36ae","name":"READ CSV FILE","filename":"/Users/temperatures/temperatures.csv","filenameType":"str","format":"utf8","chunk":false,"sendError":false,"encoding":"none","allProps":false,"x":1060,"y":800,"wires":[["d5532b39ae268b2b"]]},{"id":"2df0d2d7a258173f","type":"debug","z":"2c41a2bd.aa36ae","name":"debug 4","active":true,"tosidebar":true,"console":false,"tostatus":false,"complete":"false","statusVal":"","statusType":"auto","x":1600,"y":800,"wires":[]},{"id":"d5532b39ae268b2b","type":"function","z":"2c41a2bd.aa36ae","name":"function 2","func":"var lines = msg.payload.split(\"\\n\");\nvar jsonData = [];\n\nlines.forEach(function (line) {\n    var parts = line.split(\",\");\n    var value = parseFloat(parts[0]);\n    var location = parts[1];\n    var timestamp = parts[2]; \n\n    var entry = {\n        \"value\": value,\n        \"location\": location,\n        \"timestamp\": timestamp\n    };\n    jsonData.push(entry);\n});\n\nmsg.payload = jsonData;\nreturn msg;\n","outputs":1,"noerr":0,"initialize":"","finalize":"","libs":[],"x":1240,"y":800,"wires":[["720daf8ee0ed2076","f43dc4df5d845740"]]},{"id":"458331d309aa3313","type":"debug","z":"2c41a2bd.aa36ae","name":"debug 6","active":true,"tosidebar":true,"console":false,"tostatus":false,"complete":"false","statusVal":"","statusType":"auto","x":1620,"y":1300,"wires":[]},{"id":"3fa71758f54a2064","type":"debug","z":"2c41a2bd.aa36ae","name":"debug 7","active":true,"tosidebar":true,"console":false,"tostatus":false,"complete":"false","statusVal":"","statusType":"auto","x":1800,"y":880,"wires":[]},{"id":"ae64d7de4b5e94c0","type":"catch","z":"2c41a2bd.aa36ae","name":"","scope":["a46869bf5dbe5489","643549a32bc7c8a9"],"uncaught":false,"x":790,"y":800,"wires":[["6bec77631abb8779"]]},{"id":"720daf8ee0ed2076","type":"http request","z":"2c41a2bd.aa36ae","name":"UPDATE DB","method":"POST","ret":"txt","paytoqs":"ignore","url":"http://localhost:3000/api/updateDB","tls":"","persist":false,"proxy":"","insecureHTTPParser":false,"authType":"","senderr":false,"headers":[],"credentials":{},"x":1440,"y":800,"wires":[["2df0d2d7a258173f"]]},{"id":"643549a32bc7c8a9","type":"debug","z":"2c41a2bd.aa36ae","name":"debug 9","active":true,"tosidebar":true,"console":false,"tostatus":false,"complete":"false","statusVal":"","statusType":"auto","x":1680,"y":1020,"wires":[]},{"id":"8bba6898504a6e23","type":"ui_gauge","z":"2c41a2bd.aa36ae","name":"","group":"57ff470b.93fdf8","order":0,"width":0,"height":0,"gtype":"wave","title":"Current Temperature","label":"Temp","format":"{{value}}","min":0,"max":"50","colors":["#00b500","#e6e600","#ca3838"],"seg1":"","seg2":"","className":"","x":1250,"y":900,"wires":[]},{"id":"318c5f20edf6f6e3","type":"ui_chart","z":"2c41a2bd.aa36ae","name":"","group":"57ff470b.93fdf8","order":1,"width":0,"height":0,"label":"Temperature Changes","chartType":"line","legend":"true","xformat":"HH:mm","interpolate":"linear","nodata":"","dot":true,"ymin":"0","ymax":"50","removeOlder":"1","removeOlderPoints":"","removeOlderUnit":"86400","cutout":0,"useOneColor":false,"useUTC":false,"colors":["#1f77b4","#aec7e8","#ff7f0e","#2ca02c","#98df8a","#d62728","#ff9896","#9467bd","#c5b0d5"],"outputs":1,"useDifferentColor":false,"className":"","x":1250,"y":1140,"wires":[[]]},{"id":"6bec77631abb8779","type":"trigger","z":"2c41a2bd.aa36ae","name":"","op1":"","op2":"0","op1type":"nul","op2type":"str","duration":"5","extend":false,"overrideDelay":false,"units":"s","reset":"","bytopic":"all","topic":"topic","outputs":1,"x":880,"y":720,"wires":[["f8c14957fcb45565"]]},{"id":"6ab192f19e60d0cc","type":"inject","z":"2c41a2bd.aa36ae","name":"","props":[{"p":"payload"},{"p":"topic","vt":"str"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"","payloadType":"date","x":880,"y":660,"wires":[["6bec77631abb8779"]]},{"id":"f43dc4df5d845740","type":"debug","z":"2c41a2bd.aa36ae","name":"debug 10","active":true,"tosidebar":true,"console":false,"tostatus":false,"complete":"false","statusVal":"","statusType":"auto","x":1430,"y":740,"wires":[]},{"id":"4c9f2cb902b32661","type":"inject","z":"2c41a2bd.aa36ae","name":"","props":[{"p":"payload"},{"p":"topic","vt":"str"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"","payloadType":"date","x":1220,"y":1240,"wires":[["e3b568c28c184dc8"]]},{"id":"29fba84a.b2af58","type":"mqtt-broker","name":"","broker":"127.0.0.1","port":"1883","clientid":"","autoConnect":true,"usetls":false,"protocolVersion":"4","keepalive":"60","cleansession":true,"birthTopic":"","birthQos":"0","birthPayload":"","birthMsg":{},"closeTopic":"","closePayload":"","closeMsg":{},"willTopic":"","willQos":"0","willPayload":"","willMsg":{},"sessionExpiry":""},{"id":"57ff470b.93fdf8","type":"ui_group","name":"Temperatures ","tab":"11207769.c31889","order":1,"disp":true,"width":"6","collapse":false,"className":""},{"id":"11207769.c31889","type":"ui_tab","name":"Home","icon":"dashboard"}]
+[
+    {
+        "id": "2c41a2bd.aa36ae",
+        "type": "tab",
+        "label": "uuMeteo",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "746906de92889fd7",
+        "type": "mqtt in",
+        "z": "2c41a2bd.aa36ae",
+        "name": "",
+        "topic": "node/skeleton:0/push-button/-/event-count",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "29fba84a.b2af58",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 930,
+        "y": 1300,
+        "wires": [
+            [
+                "33e8d76979a1ac54"
+            ]
+        ]
+    },
+    {
+        "id": "e3b568c28c184dc8",
+        "type": "http request",
+        "z": "2c41a2bd.aa36ae",
+        "name": "DELETE DB",
+        "method": "DELETE",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://uumeteo-production.up.railway.app/temperatures",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1430,
+        "y": 1300,
+        "wires": [
+            [
+                "458331d309aa3313"
+            ]
+        ]
+    },
+    {
+        "id": "458331d309aa3313",
+        "type": "debug",
+        "z": "2c41a2bd.aa36ae",
+        "name": "debug 6",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1620,
+        "y": 1300,
+        "wires": []
+    },
+    {
+        "id": "33e8d76979a1ac54",
+        "type": "function",
+        "z": "2c41a2bd.aa36ae",
+        "name": "secretKey",
+        "func": "\nmsg.payload = {\n    \"secretKey\": \"fd796880c58eb67a23f027c27850a6a307a938886609796464ebf2242aa9503c\"\n}\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1240,
+        "y": 1300,
+        "wires": [
+            [
+                "e3b568c28c184dc8"
+            ]
+        ]
+    },
+    {
+        "id": "ec5ee1718ba645c3",
+        "type": "sqlite",
+        "z": "2c41a2bd.aa36ae",
+        "mydb": "b58821ee271a1a20",
+        "sqlquery": "fixed",
+        "sql": "SELECT * FROM temperature_data",
+        "name": "read ",
+        "x": 750,
+        "y": 660,
+        "wires": [
+            [
+                "73c171ac7b22efa0"
+            ]
+        ]
+    },
+    {
+        "id": "a2fb30bdf4a37114",
+        "type": "inject",
+        "z": "2c41a2bd.aa36ae",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 600,
+        "y": 660,
+        "wires": [
+            [
+                "ec5ee1718ba645c3"
+            ]
+        ]
+    },
+    {
+        "id": "73c171ac7b22efa0",
+        "type": "debug",
+        "z": "2c41a2bd.aa36ae",
+        "name": "debug 12",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 900,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "8d4efef7e18d4d50",
+        "type": "mqtt in",
+        "z": "2c41a2bd.aa36ae",
+        "name": "",
+        "topic": "node/skeleton:0/thermometer/0:1/temperature",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "29fba84a.b2af58",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 590,
+        "y": 960,
+        "wires": [
+            [
+                "6a572568d39e9751",
+                "1d75373f34bdd21d"
+            ]
+        ]
+    },
+    {
+        "id": "6a572568d39e9751",
+        "type": "function",
+        "z": "2c41a2bd.aa36ae",
+        "name": "single value post",
+        "func": "var time = new Date();\nvar formattedTime = time.toISOString();\n\nmsg.payload = {\n    \"values\": [\n        {\n            \"temperature\": +msg.payload,\n            \"time\": formattedTime\n        }\n    ],\n    \"secretKey\": \"fd796880c58eb67a23f027c27850a6a307a938886609796464ebf2242aa9503c\"\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 890,
+        "y": 960,
+        "wires": [
+            [
+                "e3c518932dacfd62"
+            ]
+        ]
+    },
+    {
+        "id": "e3c518932dacfd62",
+        "type": "http request",
+        "z": "2c41a2bd.aa36ae",
+        "name": "POST Temp",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://uumeteo-production.up.railway.app/temperatures",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [
+            {
+                "keyType": "Content-Type",
+                "keyValue": "",
+                "valueType": "application/json",
+                "valueValue": ""
+            },
+            {
+                "keyType": "other",
+                "keyValue": "",
+                "valueType": "other",
+                "valueValue": ""
+            }
+        ],
+        "x": 1090,
+        "y": 960,
+        "wires": [
+            [
+                "142160204e9139fa"
+            ]
+        ]
+    },
+    {
+        "id": "014ebc91cbfe6ee3",
+        "type": "debug",
+        "z": "2c41a2bd.aa36ae",
+        "name": "debug 13",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1860,
+        "y": 1080,
+        "wires": []
+    },
+    {
+        "id": "76d52b110c002866",
+        "type": "debug",
+        "z": "2c41a2bd.aa36ae",
+        "name": "debug 14",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1520,
+        "y": 960,
+        "wires": []
+    },
+    {
+        "id": "16ce7ae573d818a8",
+        "type": "function",
+        "z": "2c41a2bd.aa36ae",
+        "name": "structure data",
+        "func": "const data = msg.payload;\n\nconst temperature = data.values[0].temperature;\nconst time = data.values[0].time;\n\n// Craft the SQL query to insert data into the table\nconst query = `INSERT INTO temperature_data (temperature, time) VALUES (${temperature}, '${time}')`;\n\n// Set the SQL query as payload to be sent to the database node\nmsg.topic = query;\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1540,
+        "y": 1020,
+        "wires": [
+            [
+                "f8d50ed4a2cefbe7"
+            ]
+        ]
+    },
+    {
+        "id": "f8d50ed4a2cefbe7",
+        "type": "sqlite",
+        "z": "2c41a2bd.aa36ae",
+        "mydb": "b58821ee271a1a20",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "insert",
+        "x": 1710,
+        "y": 1080,
+        "wires": [
+            [
+                "014ebc91cbfe6ee3"
+            ]
+        ]
+    },
+    {
+        "id": "142160204e9139fa",
+        "type": "switch",
+        "z": "2c41a2bd.aa36ae",
+        "name": "Check HTTP Status",
+        "property": "statusCode",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "200",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 1290,
+        "y": 960,
+        "wires": [
+            [
+                "76d52b110c002866"
+            ],
+            [
+                "16ce7ae573d818a8"
+            ]
+        ]
+    },
+    {
+        "id": "6f1331a2de12758a",
+        "type": "ui_gauge",
+        "z": "2c41a2bd.aa36ae",
+        "name": "Temperature Gauge",
+        "group": "aeffc0975f97d4ed",
+        "order": 1,
+        "width": 6,
+        "height": 6,
+        "gtype": "gage",
+        "title": "Current Temperature",
+        "label": "°C",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "50",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 1210,
+        "y": 1020,
+        "wires": []
+    },
+    {
+        "id": "1d75373f34bdd21d",
+        "type": "function",
+        "z": "2c41a2bd.aa36ae",
+        "name": "Format Temperature",
+        "func": "msg.payload = +msg.payload;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 900,
+        "y": 1020,
+        "wires": [
+            [
+                "6f1331a2de12758a"
+            ]
+        ]
+    },
+    {
+        "id": "d5532b39ae268b2b",
+        "type": "function",
+        "z": "2c41a2bd.aa36ae",
+        "name": "structure data",
+        "func": "var jsonData = msg.payload.map(({ id, ...data }) => data);\n\n\nmsg.payload = {\n    \"values\": jsonData,\n    \"secretKey\": \"fd796880c58eb67a23f027c27850a6a307a938886609796464ebf2242aa9503c\"\n};\n\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 920,
+        "y": 860,
+        "wires": [
+            [
+                "720daf8ee0ed2076"
+            ]
+        ]
+    },
+    {
+        "id": "ae64d7de4b5e94c0",
+        "type": "catch",
+        "z": "2c41a2bd.aa36ae",
+        "name": "",
+        "scope": [
+            "720daf8ee0ed2076",
+            "e3c518932dacfd62"
+        ],
+        "uncaught": false,
+        "x": 470,
+        "y": 860,
+        "wires": [
+            [
+                "6bec77631abb8779"
+            ]
+        ]
+    },
+    {
+        "id": "720daf8ee0ed2076",
+        "type": "http request",
+        "z": "2c41a2bd.aa36ae",
+        "name": "UPDATE DB",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://uumeteo-production.up.railway.app/temperatures",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [
+            {
+                "keyType": "other",
+                "keyValue": "",
+                "valueType": "other",
+                "valueValue": ""
+            }
+        ],
+        "x": 1130,
+        "y": 860,
+        "wires": [
+            [
+                "1c31a9e3.f26bdc"
+            ]
+        ]
+    },
+    {
+        "id": "6bec77631abb8779",
+        "type": "trigger",
+        "z": "2c41a2bd.aa36ae",
+        "name": "",
+        "op1": "",
+        "op2": "0",
+        "op1type": "nul",
+        "op2type": "str",
+        "duration": "30",
+        "extend": false,
+        "overrideDelay": false,
+        "units": "min",
+        "reset": "",
+        "bytopic": "all",
+        "topic": "topic",
+        "outputs": 1,
+        "x": 610,
+        "y": 780,
+        "wires": [
+            [
+                "2b2388e7a9ba75ff"
+            ]
+        ]
+    },
+    {
+        "id": "1c31a9e3.f26bdc",
+        "type": "switch",
+        "z": "2c41a2bd.aa36ae",
+        "name": "Check HTTP Status",
+        "property": "statusCode",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "200",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 1350,
+        "y": 860,
+        "wires": [
+            [
+                "bf262c7efa3bd51e"
+            ],
+            [
+                "7c358130a56eed1a"
+            ]
+        ]
+    },
+    {
+        "id": "7c358130a56eed1a",
+        "type": "debug",
+        "z": "2c41a2bd.aa36ae",
+        "name": "debug 10",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1600,
+        "y": 880,
+        "wires": []
+    },
+    {
+        "id": "edf49502adda42c8",
+        "type": "debug",
+        "z": "2c41a2bd.aa36ae",
+        "name": "debug 11",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1740,
+        "y": 800,
+        "wires": []
+    },
+    {
+        "id": "2b2388e7a9ba75ff",
+        "type": "sqlite",
+        "z": "2c41a2bd.aa36ae",
+        "mydb": "b58821ee271a1a20",
+        "sqlquery": "fixed",
+        "sql": "SELECT * FROM temperature_data",
+        "name": "read ",
+        "x": 730,
+        "y": 860,
+        "wires": [
+            [
+                "d5532b39ae268b2b"
+            ]
+        ]
+    },
+    {
+        "id": "bf262c7efa3bd51e",
+        "type": "sqlite",
+        "z": "2c41a2bd.aa36ae",
+        "mydb": "b58821ee271a1a20",
+        "sqlquery": "fixed",
+        "sql": "DELETE FROM temperature_data;",
+        "name": "delete",
+        "x": 1590,
+        "y": 800,
+        "wires": [
+            [
+                "edf49502adda42c8"
+            ]
+        ]
+    },
+    {
+        "id": "62958ef9a5736c87",
+        "type": "ui_button",
+        "z": "2c41a2bd.aa36ae",
+        "name": "",
+        "group": "aeffc0975f97d4ed",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "button",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 1050,
+        "y": 1220,
+        "wires": [
+            [
+                "33e8d76979a1ac54"
+            ]
+        ]
+    },
+    {
+        "id": "29fba84a.b2af58",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "127.0.0.1",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "sessionExpiry": ""
+    },
+    {
+        "id": "b58821ee271a1a20",
+        "type": "sqlitedb",
+        "db": "/Users/christianjokel/.node-red/temp.db",
+        "mode": "RWC"
+    },
+    {
+        "id": "aeffc0975f97d4ed",
+        "type": "ui_group",
+        "name": "Temperature",
+        "tab": "d62b7193942f14a0",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "d62b7193942f14a0",
+        "type": "ui_tab",
+        "name": "Gauge",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    }
+]
