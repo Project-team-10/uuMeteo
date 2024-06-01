@@ -1,6 +1,6 @@
 #include <application.h>
 
-#define TEMPERATURE_UPDATE_SERVICE_INTERVAL (5 * 1000)
+#define TEMPERATURE_UPDATE_SERVICE_INTERVAL (5 * 60 * 1000)
 #define TEMPERATURE_PUB_VALUE_CHANGE 0.5f
 #define TEMPERATURE_PUB_NO_CHANGE_INTEVAL (60 * 60 * 1000)
 
@@ -39,7 +39,7 @@ void tmp112_event_handler(twr_tmp112_t *self, twr_tmp112_event_t event, void *ev
 // Button func
 void button_event_handler(twr_button_t *self, twr_button_event_t event, void *event_param)
 {
-   if(event == TWR_BUTTON_EVENT_CLICK)
+   if(event == TWR_BUTTON_EVENT_HOLD)
    {
     button_click_count++;
 
